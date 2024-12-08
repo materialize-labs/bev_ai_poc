@@ -69,12 +69,10 @@
 - [x] Add brand name selection UI
 - [x] Parse and display brand stories
 - [x] Add brand selection persistence
-- [x] Set up DALL-E integration
-- [x] Add logo generation system
-- [x] Add logo regeneration capability
-- [ ] Create beverage mockup system
-- [ ] Implement logo placement on packaging
-- [ ] Add container type selection
+- [x] Implement markdown formatting for brand suggestions
+- [x] Update to three brand options
+- [x] Create beverage mockup system
+- [x] Add container type selection
 - [ ] Apply brand colors to packaging
 - [ ] Generate multiple product views
 - [ ] Add color palette generation

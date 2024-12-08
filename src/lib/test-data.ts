@@ -55,42 +55,64 @@ Focus on health-conscious urban professionals who want natural energy solutions.
 - Concerns about artificial ingredients`,
 
   brandNames: `### Brand Suggestion 1
-1. The Brand Name
-Zenergy
+
+#### Brand Name
+**Zenergy**
 - Pronunciation: "ZEN-er-jee"
 - Available Domains: zenergy.co, drinkzenergy.com
 
-2. Brand Story
+#### Brand Story
 Combines "Zen" and "Energy" to represent balanced, mindful energy. Perfect for those seeking clarity and focus without the jitters.
 
-3. Market Fit
+#### Market Fit
 - Target Appeal: Resonates with health-conscious professionals
 - Category Fit: Stands out in the natural energy segment
 - Trademark Potential: High viability, unique in beverage space
 
-4. Visual Identity
+#### Visual Identity
 - Logo Style: Minimalist, geometric
 - Colors: Sage green, cool gray, white
 - Typography: Clean sans-serif
 
 ### Brand Suggestion 2
-1. The Brand Name
-Elevate
+
+#### Brand Name
+**Elevate**
 - Pronunciation: "EL-eh-vayt"
 - Available Domains: drinkelevate.co, elevatedrinks.com
 
-2. Brand Story
+#### Brand Story
 Represents rising above ordinary energy drinks. Empowers achievers to reach their peak performance naturally.
 
-3. Market Fit
+#### Market Fit
 - Target Appeal: Perfect for ambitious professionals
 - Category Fit: Premium positioning in natural segment
 - Trademark Potential: May need specific variation
 
-4. Visual Identity
+#### Visual Identity
 - Logo Style: Upward flowing, dynamic
 - Colors: Deep blue, silver, white
-- Typography: Modern, bold sans-serif`,
+- Typography: Modern, bold sans-serif
+
+### Brand Suggestion 3
+
+#### Brand Name
+**Vitality**
+- Pronunciation: "vai-TAL-i-tee"
+- Available Domains: drinkvitality.co, vitalitydrinks.com
+
+#### Brand Story
+Embodies the essence of natural vitality and wellness. A brand that celebrates life's energy through pure, invigorating ingredients.
+
+#### Market Fit
+- Target Appeal: Health-focused millennials and Gen Z
+- Category Fit: Bridges wellness and energy categories
+- Trademark Potential: Strong with specific branding
+
+#### Visual Identity
+- Logo Style: Organic, flowing
+- Colors: Emerald green, sunrise orange, pearl white
+- Typography: Elegant, nature-inspired serif`,
 
   logoPrompt: `Creating a minimalist, premium logo for Zenergy, a natural energy drink brand targeting health-conscious professionals. The design should convey clarity, focus, and natural energy.
 

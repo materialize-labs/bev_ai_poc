@@ -264,33 +264,25 @@ export default function CreatePage() {
 
         const parsedBrandNames = suggestions.map(suggestion => {
           try {
-            // Extract brand name (first line after "1. The Brand Name")
-            const nameMatch = suggestion.match(/1\. The Brand Name\n([^\n]+)/);
+            // Extract brand name (looking for the name between ** **)
+            const nameMatch = suggestion.match(/\*\*([^*]+)\*\*/);
             if (!nameMatch?.[1]) {
               console.warn('Could not extract brand name from suggestion');
               return null;
             }
+
+            // Get the name and clean up any markdown formatting
             const name = nameMatch[1].trim();
 
-            // Extract brand story (everything between "2. Brand Story" and "3. Market Fit")
-            const storyMatch = suggestion.match(/2\. Brand Story\n([\s\S]+?)(?=3\. Market Fit|$)/);
-            const story = storyMatch?.[1]?.trim() || '';
-
-            // Extract market fit details (everything between "3. Market Fit" and "4. Visual Identity")
-            const marketFitMatch = suggestion.match(/3\. Market Fit\n([\s\S]+?)(?=4\. Visual Identity|$)/);
-            const marketFit = marketFitMatch?.[1]?.trim() || '';
-
-            // Combine story and market fit for description
-            const description = [story, marketFit].filter(Boolean).join('\n\n');
-
-            if (!name || !description) {
-              console.warn('Invalid brand suggestion data');
-              return null;
-            }
+            // Extract everything after Brand Story for the description
+            const descriptionMatch = suggestion.match(/#### Brand Story\n([\s\S]+?)(?=####|$)/);
+            const description = descriptionMatch 
+              ? descriptionMatch[1].trim()
+              : 'A unique and memorable brand name for your beverage.';
 
             return {
               name,
-              description: description || 'A unique and memorable brand name for your beverage.'
+              description: suggestion.trim() // Store the full markdown content
             };
           } catch (parseError) {
             console.error('Error parsing brand suggestion:', parseError);
@@ -536,122 +528,61 @@ export default function CreatePage() {
                 </RadioGroup>
                 {selectedBrandName && (
                   <div className="mt-6 space-y-6">
-                    {logoData && (
-                      <div className="space-y-6 rounded-lg border bg-muted/50 p-6">
-                        <div className="grid gap-6 md:grid-cols-2">
-                          <div className="space-y-4">
-                            <h4 className="font-semibold">Generated Logo</h4>
-                            <div className="relative aspect-square overflow-hidden rounded-lg border bg-background">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={logoData.logoUrl}
-                                alt={`Logo for ${selectedBrandName}`}
-                                className="size-full object-contain p-4"
-                              />
-                            </div>
-                          </div>
+                    <div className="space-y-4">
+                      <h4 className="font-semibold">Product Mockup</h4>
+                      <Tabs defaultValue="can" value={containerType} onValueChange={(v) => setContainerType(v as ContainerType)}>
+                        <TabsList className="grid w-full grid-cols-3">
+                          <TabsTrigger value="can" className="space-x-2">
+                            <Package className="h-4 w-4" />
+                            <span>Can</span>
+                          </TabsTrigger>
+                          <TabsTrigger value="bottle" className="space-x-2">
+                            <Wine className="h-4 w-4" />
+                            <span>Bottle</span>
+                          </TabsTrigger>
+                          <TabsTrigger value="tetra" className="space-x-2">
+                            <Beer className="h-4 w-4" />
+                            <span>Tetra Pak</span>
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
 
-                          <div className="space-y-4">
-                            <h4 className="font-semibold">Product Mockup</h4>
-                            <Tabs defaultValue="can" value={containerType} onValueChange={(v) => setContainerType(v as ContainerType)}>
-                              <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="can" className="space-x-2">
-                                  <Package className="h-4 w-4" />
-                                  <span>Can</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="bottle" className="space-x-2">
-                                  <Wine className="h-4 w-4" />
-                                  <span>Bottle</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="tetra" className="space-x-2">
-                                  <Beer className="h-4 w-4" />
-                                  <span>Tetra Pak</span>
-                                </TabsTrigger>
-                              </TabsList>
-                            </Tabs>
-
-                            {mockupData ? (
-                              <div className="relative aspect-square overflow-hidden rounded-lg border bg-background">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={mockupData.mockupUrl}
-                                  alt={`${selectedBrandName} ${containerType} mockup`}
-                                  className="size-full object-contain p-4"
-                                />
-                              </div>
+                      {mockupData ? (
+                        <div className="relative aspect-square overflow-hidden rounded-lg border bg-background">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={mockupData.mockupUrl}
+                            alt={`${selectedBrandName} ${containerType} mockup`}
+                            className="size-full object-contain p-4"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex aspect-square items-center justify-center rounded-lg border bg-background/50">
+                          <Button
+                            onClick={handleMockupGeneration}
+                            disabled={isGeneratingMockup}
+                            variant="outline"
+                            className="gap-2"
+                          >
+                            {isGeneratingMockup ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Generating Mockup...
+                              </>
                             ) : (
-                              <div className="flex aspect-square items-center justify-center rounded-lg border bg-background/50">
-                                <Button
-                                  onClick={handleMockupGeneration}
-                                  disabled={isGeneratingMockup}
-                                  variant="outline"
-                                  className="gap-2"
-                                >
-                                  {isGeneratingMockup ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                      Generating Mockup...
-                                    </>
-                                  ) : (
-                                    <>
-                                      Generate Product Mockup
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
+                              <>
+                                Generate Product Mockup
+                              </>
                             )}
-                          </div>
+                          </Button>
                         </div>
-
-                        <div className="space-y-4">
-                          <div className="flex justify-between gap-4">
-                            <Button
-                              variant="outline"
-                              onClick={handleLogoGeneration}
-                              disabled={isGeneratingLogo}
-                            >
-                              {isGeneratingLogo ? (
-                                <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Generating Logo...
-                                </>
-                              ) : (
-                                'Generate New Logo'
-                              )}
-                            </Button>
-                            {mockupData ? (
-                              <Button
-                                variant="outline"
-                                onClick={handleMockupGeneration}
-                                disabled={isGeneratingMockup}
-                              >
-                                {isGeneratingMockup ? (
-                                  <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating Mockup...
-                                  </>
-                                ) : (
-                                  'Generate New Mockup'
-                                )}
-                              </Button>
-                            ) : null}
-                            <Button onClick={goToNextStep} className="gap-2">
-                              Next Step: Formulation
-                              <ArrowRight className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            The logo and mockup were generated based on your brand's values and target audience.
-                            You can generate new versions or proceed to the next step.
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 )}
               </Card>
             )}
-            {hasResponse && !isStreaming && (
+            {hasResponse && !isStreaming && !showBrandSelection && (
               <div className="flex justify-between">
                 <Button
                   variant="outline"
@@ -664,6 +595,62 @@ export default function CreatePage() {
                   Skip Logo Generation
                   <ArrowRight className="h-4 w-4" />
                 </Button>
+              </div>
+            )}
+
+            {showBrandSelection && !isStreaming && !selectedBrandName && (
+              <div className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={goToPreviousStep}
+                  className="gap-2"
+                >
+                  Back to Consumer Persona
+                </Button>
+                <Button onClick={goToNextStep} className="gap-2">
+                  Skip Logo Generation
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            {showBrandSelection && selectedBrandName && !logoData && (
+              <div className="flex justify-between mt-6">
+                <Button
+                  variant="outline"
+                  onClick={goToPreviousStep}
+                  className="gap-2"
+                >
+                  Back to Consumer Persona
+                </Button>
+                <div className="space-x-4">
+                  <Button
+                    onClick={handleLogoGeneration}
+                    disabled={isGeneratingLogo}
+                    variant="default"
+                    className="gap-2"
+                  >
+                    {isGeneratingLogo ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generating Logo...
+                      </>
+                    ) : (
+                      <>
+                        Generate Logo
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={goToNextStep}
+                    className="gap-2"
+                  >
+                    Skip Logo Generation
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </>
