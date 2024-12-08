@@ -252,6 +252,8 @@
    - Add ReactMarkdown for content rendering
    - Follow mobile-first responsive patterns
    - Implement proper loading states with LoadingSpinner
+   - Add mockup display card component
+   - Handle mockup image responsiveness
 
 2. Implement content synthesis:
    - Use existing message context from useMessages hook
@@ -265,7 +267,11 @@
        - Visual identity details
        - Color palette display
        - Container type
-       - Product mockup
+       - Product mockup display:
+         * Responsive image container
+         * Container type context
+         * Brand name integration
+         * Proper aspect ratio
      * Product Formulation
      * Business Plan
    - Add fallback content for missing sections
@@ -281,6 +287,7 @@
    - Include all brand identity elements
    - Pass complete visual assets data
    - Handle missing data gracefully
+   - Manage mockup data persistence
 
 4. Test mode support:
    - Add review step test responses to src/lib/test-data.ts
@@ -290,6 +297,7 @@
    - Match production response format
    - Include complete brand identity data
    - Test all visual elements
+   - Verify mockup display in test mode
 
 5. Navigation integration:
    - Add review step to src/lib/steps.ts
@@ -299,6 +307,7 @@
    - Update progress indicator
    - Enable interactive refinements
    - Support section navigation
+   - Maintain mockup context
 
 ✅ Implementation Status:
 - [x] Review step added to wizard flow
