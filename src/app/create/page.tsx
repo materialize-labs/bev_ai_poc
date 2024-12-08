@@ -1186,6 +1186,28 @@ export default function CreatePage() {
               isStreaming={isStreaming}
               error={error}
             />
+            {mockupData && (
+              <div className="mt-4 space-y-4">
+                <Card className="mx-4 sm:mx-0">
+                  <div className="p-4 sm:p-6">
+                    <div className="mb-4 space-y-2">
+                      <h3 className="text-xl font-bold sm:text-2xl">Brand Mockup</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Your product mockup for {selectedBrandName} in {containerType} format.
+                      </p>
+                    </div>
+                    <div className="relative aspect-square overflow-hidden rounded-lg border bg-background">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={mockupData.mockupUrl}
+                        alt={`${selectedBrandName} ${containerType} mockup`}
+                        className="size-full object-contain p-4"
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
             <div className="mt-4 space-y-4 px-4 sm:px-0">
               {!hasResponse && !isStreaming && reviewMessages.length === 1 && (
                 <p className="text-sm text-muted-foreground">
