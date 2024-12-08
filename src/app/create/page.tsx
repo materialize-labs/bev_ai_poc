@@ -439,14 +439,26 @@ export default function CreatePage() {
               isStreaming={isStreaming}
               suggestedPrompts={marketResearchPrompts}
             />
-            {hasResponse && !isStreaming && marketResearchMessages.length > 1 && (
-              <div className="flex justify-end px-4 sm:px-0">
-                <Button onClick={goToNextStep} className="gap-2">
-                  Next Step: Consumer Persona
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+            <div className="mt-4 space-y-4 px-4 sm:px-0">
+              {!hasResponse && !isStreaming && marketResearchMessages.length === 1 && (
+                <p className="text-sm text-muted-foreground">
+                  👋 Start by describing your beverage category. You can use the suggested messages above or write your own.
+                </p>
+              )}
+              {hasResponse && !isStreaming && marketResearchMessages.length > 1 && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Market research complete! You can continue the conversation or proceed to the next step.
+                  </p>
+                  <div className="flex justify-end">
+                    <Button onClick={goToNextStep} className="gap-2">
+                      Next Step: Consumer Persona
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         )}
 
@@ -458,21 +470,33 @@ export default function CreatePage() {
               isStreaming={isStreaming}
               suggestedPrompts={consumerPersonaPrompts}
             />
-            {hasResponse && !isStreaming && personaMessages.length > 1 && (
-              <div className="flex flex-col gap-4 px-4 sm:flex-row sm:justify-between sm:px-0">
-                <Button
-                  variant="outline"
-                  onClick={goToPreviousStep}
-                  className="gap-2"
-                >
-                  Back to Market Research
-                </Button>
-                <Button onClick={goToNextStep} className="gap-2">
-                  Next Step: Branding
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+            <div className="mt-4 space-y-4 px-4 sm:px-0">
+              {!hasResponse && !isStreaming && personaMessages.length === 1 && (
+                <p className="text-sm text-muted-foreground">
+                  👥 Describe your target consumer. Consider their age, lifestyle, and preferences.
+                </p>
+              )}
+              {hasResponse && !isStreaming && personaMessages.length > 1 && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Consumer persona defined! You can refine the persona or move to branding.
+                  </p>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={goToPreviousStep}
+                      className="gap-2"
+                    >
+                      Back to Market Research
+                    </Button>
+                    <Button onClick={goToNextStep} className="gap-2">
+                      Next Step: Branding
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         )}
 
@@ -484,13 +508,22 @@ export default function CreatePage() {
               isStreaming={isStreaming}
               suggestedPrompts={brandingPrompts}
             />
+            {!showBrandSelection && !isStreaming && brandingMessages.length === 1 && (
+              <div className="mt-4 px-4 sm:px-0">
+                <p className="text-sm text-muted-foreground">
+                  🎨 Describe the key themes and values you want your brand to convey.
+                </p>
+              </div>
+            )}
             {showBrandSelection && !isStreaming && (
               <Card className="mx-4 sm:mx-0">
                 <div className="p-4 sm:p-6">
-                  <h3 className="mb-2 text-xl font-bold sm:mb-4 sm:text-2xl">Select Your Brand Name</h3>
-                  <p className="mb-4 text-sm text-muted-foreground sm:mb-6">
-                    Choose from the generated brand names below. Each name has been carefully crafted to align with your brand values and resonate with your target audience.
-                  </p>
+                  <div className="mb-6 space-y-2">
+                    <h3 className="text-xl font-bold sm:text-2xl">Select Your Brand Name</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Choose from the generated brand names below. Each name has been carefully crafted to align with your brand values and resonate with your target audience.
+                    </p>
+                  </div>
                   <RadioGroup
                     value={selectedBrandName}
                     onValueChange={setSelectedBrandName}
@@ -599,14 +632,19 @@ export default function CreatePage() {
               </Card>
             )}
             {hasResponse && !isStreaming && !showBrandSelection && (
-              <div className="flex justify-between px-4 sm:px-0">
-                <Button
-                  variant="outline"
-                  onClick={goToPreviousStep}
-                  className="gap-2"
-                >
-                  Back to Consumer Persona
-                </Button>
+              <div className="mt-4 flex flex-col gap-4 px-4 sm:px-0">
+                <p className="text-sm text-muted-foreground">
+                  ✅ Brand themes defined! You can continue refining or go back to the previous step.
+                </p>
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={goToPreviousStep}
+                    className="gap-2"
+                  >
+                    Back to Consumer Persona
+                  </Button>
+                </div>
               </div>
             )}
           </>

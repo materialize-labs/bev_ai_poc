@@ -93,6 +93,9 @@ The proposed web application will serve as a PoC to demonstrate a chat-based, AI
 - Easy access to previous discussions and decisions
 - Touch-friendly interface for mobile users
 - Consistent experience across devices
+- Clear step progression indicators
+- Contextual guidance at each step
+- Visual feedback for completion status
 
 ##### 3.2.3 Responsive Design
 - Mobile-first approach to design
@@ -103,6 +106,16 @@ The proposed web application will serve as a PoC to demonstrate a chat-based, AI
 - Efficient use of screen real estate
 - Smooth transitions between breakpoints
 - Consistent functionality across devices
+
+##### 3.2.4 User Guidance
+- Clear instructions at each step
+- Visual indicators for progress
+- Contextual help messages
+- Status indicators for completion
+- Intuitive navigation cues
+- Clear next step indicators
+- Obvious action buttons
+- Consistent feedback patterns
 
 ### 4. User Experience Design
 
