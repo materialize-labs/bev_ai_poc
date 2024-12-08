@@ -61,6 +61,11 @@ const stepMessages = {
       "Excellent! Now let's create a unique brand identity. First, tell me about the key themes, values, or emotions you want your brand to convey. Consider your market research insights and target persona."
     ),
   ],
+  "formulation": [
+    createInitialMessage(
+      "Let's develop your product recipe! Tell me about the key ingredients and flavors you'd like to include. Consider your target consumer preferences and any nutritional goals."
+    ),
+  ],
 }
 
 interface BrandName {
@@ -88,6 +93,12 @@ const brandingPrompts = [
   "Clean, pure, and refreshing with a connection to nature and mindfulness.",
 ]
 
+const formulationPrompts = [
+  "A refreshing blend with natural caffeine from green tea, B-vitamins, and adaptogens.",
+  "A sparkling water infused with organic fruit essences and electrolytes.",
+  "A plant protein shake with pea protein, MCT oil, and natural sweeteners.",
+]
+
 export default function CreatePage() {
   const {
     currentStep,
@@ -101,7 +112,9 @@ export default function CreatePage() {
   const [marketResearchMessages, setMarketResearchMessages] = useState<Message[]>(() => [...stepMessages["market-research"]])
   const [personaMessages, setPersonaMessages] = useState<Message[]>(() => [...stepMessages["consumer-persona"]])
   const [brandingMessages, setBrandingMessages] = useState<Message[]>(() => [...stepMessages["branding"]])
+  const [formulationMessages, setFormulationMessages] = useState<Message[]>(() => [...stepMessages["formulation"]])
   const [isStreaming, setIsStreaming] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [hasResponse, setHasResponse] = useState(false)
   const [brandNames, setBrandNames] = useState<BrandName[]>([])
   const [selectedBrandName, setSelectedBrandName] = useState<string>("")
@@ -423,6 +436,89 @@ export default function CreatePage() {
     }
   }
 
+  const handleFormulation = async (message: string) => {
+    try {
+      setIsStreaming(true)
+      setError(null)
+      const userMessage: Message = {
+        id: nanoid(),
+        role: "user",
+        content: message,
+        createdAt: new Date(),
+      }
+      
+      const updatedMessages = [...formulationMessages, userMessage]
+      setFormulationMessages(updatedMessages)
+
+      const assistantMessageId = nanoid()
+      setFormulationMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMessageId,
+          role: "assistant",
+          content: "",
+          createdAt: new Date(),
+        },
+      ])
+
+      const response = await fetch("/api/formulation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          previousSteps: {
+            marketResearch: marketResearchMessages[marketResearchMessages.length - 1]?.content,
+            consumerPersona: personaMessages[personaMessages.length - 1]?.content,
+            brandName: brandNames.find(b => b.name === selectedBrandName),
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get formulation response')
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('No response body')
+      }
+
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        setFormulationMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          )
+        )
+      }
+
+      setHasResponse(true)
+    } catch (error) {
+      console.error("Formulation Error:", error)
+      setError(error instanceof Error ? error.message : "An error occurred while processing your request.")
+      setFormulationMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          role: "assistant",
+          content: "Sorry, I encountered an error while developing the recipe. Please try again.",
+          createdAt: new Date(),
+        },
+      ])
+    } finally {
+      setIsStreaming(false)
+    }
+  }
+
   return (
     <div className="container space-y-8 py-4 sm:py-8">
       <ProgressIndicator
@@ -647,6 +743,52 @@ export default function CreatePage() {
                 </div>
               </div>
             )}
+          </>
+        )}
+
+        {currentStep === "formulation" && (
+          <>
+            <Chat
+              initialMessages={formulationMessages}
+              onSubmit={handleFormulation}
+              isStreaming={isStreaming}
+              error={error}
+              suggestedPrompts={formulationPrompts}
+            />
+            <div className="mt-4 space-y-4 px-4 sm:px-0">
+              {!hasResponse && !isStreaming && formulationMessages.length === 1 && (
+                <p className="text-sm text-muted-foreground">
+                  🧪 Describe your desired ingredients and nutritional goals. Consider your target consumer preferences.
+                </p>
+              )}
+              {hasResponse && !isStreaming && formulationMessages.length > 1 && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Recipe development in progress! You can continue refining or go back to branding.
+                  </p>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={goToPreviousStep}
+                      className="gap-2"
+                    >
+                      Back to Branding
+                    </Button>
+                    {isLastStep ? (
+                      <Button onClick={goToNextStep} className="gap-2">
+                        Finish
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button onClick={goToNextStep} className="gap-2">
+                        Next Step
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

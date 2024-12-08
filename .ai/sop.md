@@ -155,18 +155,37 @@
    - Design element placement
 
 ### 3.4 Product Formulation Chat
-1. Create ingredient explorer:
-   - Interactive selection
+1. Create formulation chat interface:
+   - Implement chat-based recipe development
+   - Add suggested prompts for common formulations
+   - Create streaming response handling
+   - Add proper error states
+
+2. Implement context integration:
+   - Pass market research insights
+   - Include consumer persona preferences
+   - Add brand identity context
+   - Maintain conversation history
+
+3. Add recipe development features:
+   - Ingredient selection guidance
    - Nutritional analysis
-   - Cost estimation
-2. Implement recipe development:
-   - Measurement conversion
-   - Scaling tools
-   - Production considerations
-3. Add compliance checking:
-   - Regulatory validation
-   - Allergen warnings
-   - Label requirements
+   - Flavor profile suggestions
+   - Regulatory compliance checks
+   - Production scalability advice
+
+4. Create test mode support:
+   - Add realistic test responses
+   - Implement streaming simulation
+   - Create sample formulations
+   - Add proper error scenarios
+
+5. Enhance user experience:
+   - Add clear step progression
+   - Implement back/next navigation
+   - Show contextual guidance
+   - Make mobile-responsive
+   - Add completion indicators
 
 ## Phase 4: AI Integration
 

@@ -277,3 +277,80 @@ Note: This should look like a professional product photo of a real beverage ${co
 
   return { prompt, mockupUrl };
 } 
+
+interface FormulationInput {
+  messages: { role: string; content: string }[]
+  marketResearch: string
+  consumerPersona: string
+  brandName: { name: string; description: string }
+}
+
+export async function generateFormulation({
+  messages,
+  marketResearch,
+  consumerPersona,
+  brandName,
+}: FormulationInput) {
+  if (TEST_MODE) {
+    return generateTestFormulation(messages)
+  }
+
+  const systemMessage = {
+    role: "system",
+    content: `You are a beverage formulation expert. Use the following context to help develop the product recipe:
+Market Research: ${marketResearch}
+Target Consumer: ${consumerPersona}
+Brand Name: ${brandName?.name}
+Brand Story: ${brandName?.description}
+
+Help the user develop their beverage recipe by:
+1. Suggesting appropriate ingredients based on their requirements
+2. Providing nutritional information and analysis
+3. Offering guidance on taste balance and flavor profiles
+4. Ensuring regulatory compliance
+5. Considering production scalability
+
+Keep responses focused on formulation aspects and provide specific, actionable advice.`
+  }
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [systemMessage, ...messages],
+    temperature: 0.7,
+    stream: true,
+  })
+
+  return response
+}
+
+// Add test mode handler
+async function* generateTestFormulation(messages: { role: string; content: string }[]) {
+  const lastMessage = messages[messages.length - 1]?.content || ""
+
+  const chunks = [
+    "Based on your requirements, here's a suggested formulation:\n\n",
+    "Core Ingredients:\n",
+    "1. Filtered Water (88%)\n",
+    "2. Natural Caffeine from Green Tea Extract (100mg per serving)\n",
+    "3. B-Vitamin Complex (B3, B6, B12)\n",
+    "4. Adaptogens (200mg blend):\n",
+    "   - Ashwagandha\n",
+    "   - L-Theanine\n",
+    "   - Rhodiola\n\n",
+    "Flavor Profile:\n",
+    "- Light and refreshing\n",
+    "- Subtle citrus notes\n",
+    "- Hint of green tea\n\n",
+    "Nutritional Information (per 12 oz serving):\n",
+    "- Calories: 15\n",
+    "- Carbs: 2g\n",
+    "- Caffeine: 100mg\n",
+    "- Zero sugar\n\n",
+    "Would you like to adjust any of these components?"
+  ]
+
+  for (const chunk of chunks) {
+    yield chunk
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+} 
