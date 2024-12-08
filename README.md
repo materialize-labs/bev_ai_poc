@@ -9,6 +9,7 @@ An AI-powered beverage brand development platform that helps entrepreneurs creat
 - 👥 Consumer Persona Development
 - 🎨 Brand Design & Logo Generation
 - 🧪 Product Formulation
+- 🔄 Test Mode for Offline Development
 
 ## Tech Stack
 
@@ -26,14 +27,14 @@ An AI-powered beverage brand development platform that helps entrepreneurs creat
 
 - Node.js 18.18.0 or later
 - npm or yarn
-- OpenAI API key
+- OpenAI API key (optional for test mode)
 
 ### Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/bev-brand-ai.git
-   cd bev-brand-ai
+   git clone https://github.com/materialize-labs/bev_ai_poc.git
+   cd bev_ai_poc
    ```
 
 2. Install dependencies:
@@ -41,9 +42,10 @@ An AI-powered beverage brand development platform that helps entrepreneurs creat
    npm install
    ```
 
-3. Create a `.env` file in the root directory:
+3. Create a `.env.local` file in the root directory:
    ```env
-   OPENAI_API_KEY=your_api_key_here
+   OPENAI_API_KEY=your_api_key_here  # Required for live mode only
+   NEXT_PUBLIC_TEST_MODE=true        # Optional: Enable test mode
    ```
 
 4. Start the development server:
@@ -52,6 +54,20 @@ An AI-powered beverage brand development platform that helps entrepreneurs creat
    ```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Development Modes
+
+### Live Mode
+- Requires OpenAI API key
+- Real-time AI responses
+- Full functionality with GPT-4 and DALL-E 3
+
+### Test Mode
+- No API key required
+- Instant responses for rapid development
+- Pre-defined test data for all features
+- Visual indicator in UI
+- Toggle with `NEXT_PUBLIC_TEST_MODE` environment variable
 
 ## Project Structure
 

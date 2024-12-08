@@ -16,6 +16,7 @@ This document covers the essential components required to build a functional PoC
 - The application will be developed as a web-based platform using accessible technologies like Next.js, OpenAI GPT-4, and DALL-E 3.
 - The PoC will not include user authentication, data persistence, or advanced security measures.
 - The focus will be on providing a ChatGPT-like experience with real-time streaming responses.
+- The application will support both live API integration and offline test mode for development.
 
 ### 2. Project Overview
 
@@ -116,6 +117,7 @@ The proposed web application will serve as a PoC to demonstrate a chat-based, AI
   - OpenAI GPT-4 with streaming responses
   - DALL-E 3 for iterative image generation
   - Real-time data processing and visualization
+  - Test mode with simulated responses
 
 #### 5.2 Data Management
 - **Session Management:**
@@ -123,6 +125,7 @@ The proposed web application will serve as a PoC to demonstrate a chat-based, AI
   - Track decisions and iterations
   - Manage visual asset versions
   - Enable easy export of final results
+  - Support test mode data simulation
 
 #### 5.3 Integration Requirements
 - **Streaming Support:**
@@ -130,6 +133,38 @@ The proposed web application will serve as a PoC to demonstrate a chat-based, AI
   - WebSocket connections for bi-directional communication
   - Efficient handling of concurrent requests
   - Graceful error recovery and reconnection
+  - Test mode streaming simulation
+
+#### 5.4 Test Mode Requirements
+- **Configuration:**
+  - Environment variable control (`NEXT_PUBLIC_TEST_MODE`)
+  - Clear visual indicator in UI
+  - Easy toggle between modes
+
+- **Test Data:**
+  - Pre-defined responses for all features
+  - Realistic content structure
+  - Multiple response variations
+  - Error scenario simulation
+
+- **Performance:**
+  - Instant response delivery
+  - No artificial delays
+  - Direct streaming implementation
+  - Efficient state updates
+
+- **Development Support:**
+  - Offline development capability
+  - Quick iteration testing
+  - Feature validation
+  - Performance optimization
+  - UI/UX refinement
+
+- **Visual Feedback:**
+  - Mode status indicator
+  - Response source clarity
+  - State transitions
+  - Error handling visualization
 
 ## Features
 

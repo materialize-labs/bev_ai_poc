@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Badge } from "@/components/ui/badge"
 
 interface ShellProps {
   children: ReactNode
@@ -8,6 +9,8 @@ interface ShellProps {
 }
 
 export function Shell({ children, className }: ShellProps) {
+  const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true'
+
   return (
     <div className="min-h-screen bg-background font-sans antialiased">
       <div className="relative flex min-h-screen flex-col">
@@ -18,7 +21,14 @@ export function Shell({ children, className }: ShellProps) {
                 <span className="font-bold">Bev Brand AI</span>
               </a>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-4">
+              {isTestMode && (
+                <Badge variant="secondary" className="font-mono">
+                  TEST MODE
+                </Badge>
+              )}
+              <ThemeToggle />
+            </div>
           </div>
         </header>
         <main className={cn("flex-1", className)}>
@@ -40,7 +50,7 @@ export function Shell({ children, className }: ShellProps) {
               </a>
               . The source code is available on{" "}
               <a
-                href="https://github.com/materializelabs/bev-brand-ai"
+                href="https://github.com/materialize-labs/bev_ai_poc"
                 target="_blank"
                 rel="noreferrer"
                 className="font-medium underline underline-offset-4"

@@ -19,9 +19,50 @@
 1. Set up environment variables for:
    - OpenAI API key
    - DALL-E API key
+   - Test mode configuration
 2. Create streaming-enabled API route handlers
 3. Implement WebSocket server
 4. Configure error handling and rate limiting
+5. Set up test mode infrastructure:
+   - Environment variable control
+   - Test response data structure
+   - Streaming simulation
+   - Delay simulation
+
+### 1.3 Test Mode Implementation
+1. Configure test mode:
+   - Set up environment variable control
+   - Create visual indicator in UI
+   - Implement instant response mode
+2. Create test data structure:
+   - Market research responses
+   - Consumer persona data
+   - Brand name suggestions
+   - Logo generation responses
+   - Mockup generation data
+3. Implement test mode handlers:
+   - Direct streaming without delays
+   - Error scenario handling
+   - Response format consistency
+4. Document test mode:
+   - Setup instructions
+   - Usage guidelines
+   - Data customization
+   - Toggle procedures
+
+### 1.4 Development Workflow
+1. Use test mode for rapid development:
+   - Instant feedback for UI changes
+   - Quick feature validation
+   - No API key requirement
+2. Switch to live mode for:
+   - Final testing
+   - Production validation
+   - Real API integration
+3. Maintain test data:
+   - Keep responses realistic
+   - Update with new features
+   - Match production format
 
 ## Phase 2: Core Components Development
 
@@ -218,6 +259,20 @@
    - Chat guidelines
    - Feature tutorials
    - Best practices
+
+### 6.3 Testing Procedures
+1. Test in live mode:
+   - API integration
+   - Response handling
+   - Error scenarios
+2. Test in test mode:
+   - Offline functionality
+   - Response simulation
+   - Streaming behavior
+3. Validate both modes:
+   - Feature parity
+   - Performance metrics
+   - User experience
 
 ## Phase 7: Deployment and Monitoring
 

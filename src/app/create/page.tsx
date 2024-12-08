@@ -7,7 +7,7 @@ import { Chat } from "@/components/chat/chat"
 import { fetchStream } from "@/lib/streaming"
 import { nanoid } from "nanoid"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Loader2, Bottle, BeerBottle, Package } from "lucide-react"
+import { ArrowRight, Loader2, Wine, Beer, Package } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -560,11 +560,11 @@ export default function CreatePage() {
                                   <span>Can</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="bottle" className="space-x-2">
-                                  <Bottle className="h-4 w-4" />
+                                  <Wine className="h-4 w-4" />
                                   <span>Bottle</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="tetra" className="space-x-2">
-                                  <BeerBottle className="h-4 w-4" />
+                                  <Beer className="h-4 w-4" />
                                   <span>Tetra Pak</span>
                                 </TabsTrigger>
                               </TabsList>
