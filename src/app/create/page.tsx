@@ -48,6 +48,11 @@ const steps = [
     name: "Business Plan",
     description: "Create your comprehensive business strategy",
   },
+  {
+    id: "review",
+    name: "Review",
+    description: "Review all decisions and generated content",
+  },
 ]
 
 const createInitialMessage = (content: string): Message => ({
@@ -81,6 +86,11 @@ const stepMessages = {
   "business-plan": [
     createInitialMessage(
       "I'll create a comprehensive business plan based on all our previous discussions. Please review each section and let me know if you'd like to modify any part."
+    ),
+  ],
+  "review": [
+    createInitialMessage(
+      "Here's a comprehensive review of your beverage brand development journey. Let's go through each step to ensure everything aligns with your vision."
     ),
   ],
 }
@@ -123,6 +133,7 @@ export default function CreatePage() {
   const [mockupData, setMockupData] = useState<{ prompt: string; mockupUrl: string } | null>(null)
 
   const [businessPlanMessages, setBusinessPlanMessages] = useState<Message[]>(() => [...stepMessages["business-plan"]])
+  const [reviewMessages, setReviewMessages] = useState<Message[]>(() => [...stepMessages["review"]])
 
   // Dynamic suggestions state
   const [marketResearchPrompts, setMarketResearchPrompts] = useState<string[]>(() => getMarketResearchSuggestions())
@@ -151,6 +162,12 @@ export default function CreatePage() {
         // Trigger initial business plan generation
         if (businessPlanMessages.length === 1) {
           handleBusinessPlan("")
+        }
+        break
+      case "review":
+        // Trigger initial review generation
+        if (reviewMessages.length === 1) {
+          handleReview("")
         }
         break
     }
@@ -687,6 +704,161 @@ export default function CreatePage() {
     }
   }
 
+  const handleReview = async (message: string) => {
+    try {
+      setIsStreaming(true)
+      setError(null)
+      
+      // If this is the first message, generate the complete review
+      if (reviewMessages.length === 1) {
+        const assistantMessageId = nanoid()
+        setReviewMessages((prev) => [
+          ...prev,
+          {
+            id: assistantMessageId,
+            role: "assistant",
+            content: "",
+            createdAt: new Date(),
+          },
+        ])
+
+        const response = await fetch("/api/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [],
+            previousSteps: {
+              marketResearch: marketResearchMessages[marketResearchMessages.length - 1]?.content,
+              consumerPersona: personaMessages[personaMessages.length - 1]?.content,
+              brandName: brandNames.find(b => b.name === selectedBrandName),
+              formulation: formulationMessages[formulationMessages.length - 1]?.content,
+              businessPlan: businessPlanMessages[businessPlanMessages.length - 1]?.content,
+              mockupData: mockupData,
+              brandIdentity: {
+                containerType,
+                colors: brandNames.find(b => b.name === selectedBrandName)?.colors,
+                theme: brandingMessages[brandingMessages.length - 1]?.content,
+              }
+            },
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to get review response')
+        }
+
+        const reader = response.body?.getReader()
+        if (!reader) {
+          throw new Error('No response body')
+        }
+
+        const decoder = new TextDecoder()
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          setReviewMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId
+                ? { ...msg, content: msg.content + chunk }
+                : msg
+            )
+          )
+        }
+
+        setHasResponse(true)
+        return
+      }
+
+      // For subsequent messages, handle refinements
+      const userMessage: Message = {
+        id: nanoid(),
+        role: "user",
+        content: message,
+        createdAt: new Date(),
+      }
+      
+      const updatedMessages = [...reviewMessages, userMessage]
+      setReviewMessages(updatedMessages)
+
+      const assistantMessageId = nanoid()
+      setReviewMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMessageId,
+          role: "assistant",
+          content: "",
+          createdAt: new Date(),
+        },
+      ])
+
+      const response = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          previousSteps: {
+            marketResearch: marketResearchMessages[marketResearchMessages.length - 1]?.content,
+            consumerPersona: personaMessages[personaMessages.length - 1]?.content,
+            brandName: brandNames.find(b => b.name === selectedBrandName),
+            formulation: formulationMessages[formulationMessages.length - 1]?.content,
+            businessPlan: businessPlanMessages[businessPlanMessages.length - 1]?.content,
+            mockupData: mockupData,
+            brandIdentity: {
+              containerType,
+              colors: brandNames.find(b => b.name === selectedBrandName)?.colors,
+              theme: brandingMessages[brandingMessages.length - 1]?.content,
+            }
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get review response')
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('No response body')
+      }
+
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        setReviewMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          )
+        )
+      }
+
+      setHasResponse(true)
+    } catch (error) {
+      console.error("Review Error:", error)
+      setError(error instanceof Error ? error.message : "An error occurred while processing your request.")
+      setReviewMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          role: "assistant",
+          content: "Sorry, I encountered an error while creating the review. Please try again.",
+          createdAt: new Date(),
+        },
+      ])
+    } finally {
+      setIsStreaming(false)
+    }
+  }
+
   return (
     <div className="container space-y-8 py-4 sm:py-8">
       <ProgressIndicator
@@ -987,6 +1159,51 @@ export default function CreatePage() {
                       className="gap-2"
                     >
                       Back to Formulation
+                    </Button>
+                    {isLastStep ? (
+                      <Button onClick={goToNextStep} className="gap-2">
+                        Finish
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button onClick={goToNextStep} className="gap-2">
+                        Next Step
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {currentStep === "review" && (
+          <>
+            <Chat
+              initialMessages={reviewMessages}
+              onSubmit={handleReview}
+              isStreaming={isStreaming}
+              error={error}
+            />
+            <div className="mt-4 space-y-4 px-4 sm:px-0">
+              {!hasResponse && !isStreaming && reviewMessages.length === 1 && (
+                <p className="text-sm text-muted-foreground">
+                  📝 Let's create your review. You can start with the executive summary or focus on specific sections.
+                </p>
+              )}
+              {hasResponse && !isStreaming && reviewMessages.length > 1 && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Review in progress! You can continue refining or go back to business plan.
+                  </p>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={goToPreviousStep}
+                      className="gap-2"
+                    >
+                      Back to Business Plan
                     </Button>
                     {isLastStep ? (
                       <Button onClick={goToNextStep} className="gap-2">

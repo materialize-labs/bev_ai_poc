@@ -542,3 +542,122 @@ async function* generateTestBusinessPlan(messages: { role: string; content: stri
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 } 
+
+interface ReviewInput {
+  messages: { role: string; content: string }[]
+  marketResearch: string
+  consumerPersona: string
+  brandName: { name: string; description: string; colors?: { primary: string; secondary: string; accent: string } }
+  formulation: string
+  businessPlan: string
+  mockupData: { prompt: string; mockupUrl: string } | null
+  brandIdentity: {
+    containerType: string
+    colors?: { primary: string; secondary: string; accent: string }
+    theme: string
+  }
+}
+
+export async function generateReview({
+  messages,
+  marketResearch,
+  consumerPersona,
+  brandName,
+  formulation,
+  businessPlan,
+  mockupData,
+  brandIdentity,
+}: ReviewInput) {
+  if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+    return generateTestReview(messages)
+  }
+
+  const systemPrompt = `You are a beverage brand development assistant. Create a comprehensive review of the entire brand development process, including:
+
+1. Market Research Summary
+2. Target Consumer Profile
+3. Brand Identity Overview
+   - Brand Name: ${brandName?.name || 'Not selected'}
+   - Brand Story & Theme: ${brandIdentity?.theme || 'Not defined'}
+   - Visual Identity:
+     * Container Type: ${brandIdentity?.containerType || 'Not selected'}
+     * Colors: Primary ${brandIdentity?.colors?.primary || 'Not selected'}, Secondary ${brandIdentity?.colors?.secondary || 'Not selected'}, Accent ${brandIdentity?.colors?.accent || 'Not selected'}
+     * Product Mockup: ${mockupData ? 'Generated' : 'Not generated'}
+4. Product Formulation Details
+5. Business Strategy Overview
+
+Present the information in a clear, organized format using markdown. Include specific details from each step while maintaining a cohesive narrative. When discussing the brand identity, reference the visual elements including colors and container design.`
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-turbo-preview",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Create a comprehensive review based on the following information:
+
+Market Research:
+${marketResearch}
+
+Consumer Persona:
+${consumerPersona}
+
+Brand Identity:
+${brandName ? `Selected Brand: ${brandName.name}\n${brandName.description}` : 'Not selected'}
+Theme: ${brandIdentity?.theme || 'Not defined'}
+Container: ${brandIdentity?.containerType || 'Not selected'}
+Colors: 
+- Primary: ${brandIdentity?.colors?.primary || 'Not selected'}
+- Secondary: ${brandIdentity?.colors?.secondary || 'Not selected'}
+- Accent: ${brandIdentity?.colors?.accent || 'Not selected'}
+${mockupData ? `\nProduct Mockup Details: ${mockupData.prompt}\nMockup URL: ${mockupData.mockupUrl}` : ''}
+
+Product Formulation:
+${formulation}
+
+Business Plan:
+${businessPlan}` },
+      ...messages,
+    ],
+    stream: true,
+  })
+
+  return completion
+}
+
+// Add test mode handler
+async function* generateTestReview(messages: { role: string; content: string }[]) {
+  const chunks = [
+    "# Beverage Brand Development Review\n\n",
+    "## 1. Market Research Summary\n",
+    "- Target Market: Premium functional beverage sector\n",
+    "- Key Trends: Growing demand for natural energy drinks\n",
+    "- Competitive Analysis: Limited natural, premium options\n\n",
+    "## 2. Target Consumer Profile\n",
+    "- Urban professionals, 25-40 years old\n",
+    "- Health-conscious and active lifestyle\n",
+    "- Values natural ingredients and sustainability\n\n",
+    "## 3. Brand Identity\n",
+    "- Name: Zenergy\n",
+    "- Positioning: Premium natural energy drink\n",
+    "- Visual Identity:\n",
+    "  * Modern, minimalist design\n",
+    "  * Container: Sleek aluminum can\n",
+    "  * Colors: Sage green primary, Pearl white secondary, Golden accent\n",
+    "  * Mockup: Clean, minimalist can design with botanical elements\n\n",
+    "## 4. Product Formulation\n",
+    "- Natural caffeine from green tea\n",
+    "- Adaptogenic herbs blend\n",
+    "- Zero sugar, low calorie\n",
+    "- Key Benefits: Clean energy, focus\n\n",
+    "## 5. Business Strategy\n",
+    "- Direct-to-consumer launch\n",
+    "- Premium pricing strategy\n",
+    "- Sustainable packaging focus\n",
+    "- Digital-first marketing approach\n\n",
+    "Would you like to review any specific aspect in more detail?"
+  ]
+
+  for (const chunk of chunks) {
+    yield chunk
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+} 

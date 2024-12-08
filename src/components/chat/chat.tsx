@@ -10,6 +10,7 @@ interface ChatProps {
   onSubmit: (message: string) => Promise<void>
   isStreaming: boolean
   suggestedPrompts?: string[]
+  error?: string | null
 }
 
 export function Chat({
@@ -17,6 +18,7 @@ export function Chat({
   onSubmit,
   isStreaming,
   suggestedPrompts = [],
+  error,
 }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const scrollRef = useRef<HTMLDivElement>(null)
