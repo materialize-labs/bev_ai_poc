@@ -125,15 +125,25 @@ Key elements:
 
   logoUrl: "https://placehold.co/1024x1024/FAFAFA/333333?text=ZENERGY",
 
-  mockupPrompt: `Creating a premium product mockup for Zenergy natural energy drink.
+  mockupPrompt: `I've created a photorealistic product mockup for your beverage brand. Here's what I focused on:
 
-Key elements:
-- Sleek aluminum can design
-- Minimalist branding
-- Premium finish
-- Professional lighting
-- Clean background
-- Modern presentation`,
+1. Container Design
+- Professional container design with modern appeal
+- Clean, minimalist aesthetic
+- Premium finish and materials
+
+2. Brand Application
+- Prominent brand name placement
+- Cohesive color scheme
+- Modern typography
+
+3. Photography Style
+- Professional studio lighting
+- 3/4 angle view for depth
+- Subtle reflections and shadows
+- Clean, minimal background
+
+The result is a high-end, retail-ready product visualization that brings your brand to life.`,
 
   mockupUrl: "https://placehold.co/1024x1024/FAFAFA/333333?text=ZENERGY+CAN"
 }

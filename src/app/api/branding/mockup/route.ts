@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { generateLogo } from '@/lib/openai';
+import { generateMockup } from '@/lib/openai';
 
 export const runtime = 'edge';
 
 interface MockupRequest {
-  logoUrl: string;
   brandName: string;
   containerType: 'can' | 'bottle' | 'tetra';
   colors: {
@@ -18,41 +17,18 @@ interface MockupRequest {
 
 export async function POST(request: Request) {
   try {
-    const { logoUrl, brandName, containerType, colors, category, theme } = await request.json() as MockupRequest;
+    const body = await request.json() as MockupRequest;
+    const { brandName, containerType, colors, category, theme } = body;
 
-    if (!logoUrl || !brandName || !containerType || !colors || !category || !theme) {
-      return NextResponse.json(
-        { error: 'All parameters are required' },
-        { status: 400 }
-      );
-    }
+    const result = await generateMockup({
+      brandName,
+      containerType,
+      colors,
+      category,
+      theme,
+    });
 
-    // Create a detailed prompt for the mockup
-    const prompt = `Create a photorealistic product mockup of a ${category} beverage ${containerType}.
-
-Key Elements:
-- Brand: "${brandName}"
-- Container: Professional ${containerType} design with modern appeal
-- Colors: Primary (${colors.primary}), Secondary (${colors.secondary}), Accent (${colors.accent})
-- Style: Clean, premium, commercial product photography
-- Theme: ${theme}
-
-Requirements:
-- Show the ${containerType} at a 3/4 angle with professional studio lighting
-- Apply the brand colors in a sleek, modern design
-- Include subtle reflections and shadows for realism
-- Place the product on a clean, minimal surface
-- Add depth of field effect for professional look
-- Ensure the design looks premium and retail-ready
-- Make it look like a real product you'd find in a store
-
-Note: This should look like a professional product photo of a real beverage ${containerType} that could be on store shelves today.`;
-
-    // Generate the mockup using DALL-E
-    const mockupUrl = await generateLogo(prompt); // Reusing the generateLogo function as it handles DALL-E calls
-
-    // Return both the prompt and the mockup URL
-    return NextResponse.json({ prompt, mockupUrl });
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Mockup Generation Error:', error);
     return NextResponse.json(

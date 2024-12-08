@@ -9,12 +9,14 @@ interface ChatProps {
   initialMessages?: Message[]
   onSubmit: (message: string) => Promise<void>
   isStreaming: boolean
+  suggestedPrompts?: string[]
 }
 
 export function Chat({
   initialMessages = [],
   onSubmit,
   isStreaming,
+  suggestedPrompts = [],
 }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -44,7 +46,7 @@ export function Chat({
   }, [messages])
 
   return (
-    <div className="flex h-[600px] flex-col rounded-lg border bg-background">
+    <div className="flex h-[400px] flex-col rounded-lg border bg-background sm:h-[600px]">
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
@@ -53,8 +55,12 @@ export function Chat({
           <Message key={message.id} message={message} />
         ))}
       </div>
-      <div className="border-t p-4">
-        <ChatInput onSubmit={addMessage} isLoading={isStreaming} />
+      <div className="border-t p-2 sm:p-4">
+        <ChatInput
+          onSubmit={addMessage}
+          isLoading={isStreaming}
+          suggestedPrompts={suggestedPrompts}
+        />
       </div>
     </div>
   )

@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import type { Message } from "@/components/chat/message"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import ReactMarkdown from "react-markdown"
 
 const steps = [
   {
@@ -69,6 +70,24 @@ interface BrandName {
 
 type ContainerType = 'can' | 'bottle' | 'tetra';
 
+const marketResearchPrompts = [
+  "I want to create a natural energy drink with clean ingredients.",
+  "I'm thinking of launching a premium sparkling water brand.",
+  "I want to develop a plant-based protein beverage.",
+]
+
+const consumerPersonaPrompts = [
+  "Health-conscious millennials who are looking for natural energy alternatives.",
+  "Active professionals aged 25-40 who value premium, sustainable products.",
+  "Fitness enthusiasts who need clean, functional beverages for their workouts.",
+]
+
+const brandingPrompts = [
+  "Modern, minimalist, and premium with a focus on wellness and sustainability.",
+  "Bold, energetic, and vibrant with an emphasis on natural ingredients.",
+  "Clean, pure, and refreshing with a connection to nature and mindfulness.",
+]
+
 export default function CreatePage() {
   const {
     currentStep,
@@ -92,9 +111,6 @@ export default function CreatePage() {
   const [category, setCategory] = useState("")
   const [persona, setPersona] = useState("")
   const [theme, setTheme] = useState("")
-
-  const [isGeneratingLogo, setIsGeneratingLogo] = useState(false)
-  const [logoData, setLogoData] = useState<{ prompt: string; logoUrl: string } | null>(null)
 
   const [containerType, setContainerType] = useState<ContainerType>('can')
   const [isGeneratingMockup, setIsGeneratingMockup] = useState(false)
@@ -145,6 +161,15 @@ export default function CreatePage() {
       setHasResponse(true)
     } catch (error) {
       console.error("Market Research Error:", error)
+      setMarketResearchMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          role: "assistant",
+          content: "Sorry, I encountered an error while analyzing the market. Please try again.",
+          createdAt: new Date(),
+        },
+      ])
     } finally {
       setIsStreaming(false)
     }
@@ -195,6 +220,15 @@ export default function CreatePage() {
       setHasResponse(true)
     } catch (error) {
       console.error("Consumer Persona Error:", error)
+      setPersonaMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          role: "assistant",
+          content: "Sorry, I encountered an error while creating the persona. Please try again.",
+          createdAt: new Date(),
+        },
+      ])
     } finally {
       setIsStreaming(false)
     }
@@ -335,61 +369,8 @@ export default function CreatePage() {
     }
   }
 
-  const handleLogoGeneration = async () => {
-    if (!selectedBrandName) return
-
-    try {
-      setIsGeneratingLogo(true)
-      const response = await fetch('/api/branding/logo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          brandName: selectedBrandName,
-          theme,
-          category,
-          targetAudience: persona,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate logo')
-      }
-
-      const data = await response.json()
-      setLogoData(data)
-
-      // Add the logo generation result to the chat
-      setBrandingMessages((prev) => [
-        ...prev,
-        {
-          id: nanoid(),
-          role: 'assistant',
-          content: `I've generated a logo for ${selectedBrandName}. Here's my thought process:\n\n${data.prompt}`,
-          createdAt: new Date(),
-        },
-      ])
-
-      setHasResponse(true)
-      // Remove automatic navigation
-      // goToNextStep()
-    } catch (error) {
-      console.error('Logo Generation Error:', error)
-      setBrandingMessages((prev) => [
-        ...prev,
-        {
-          id: nanoid(),
-          role: 'assistant',
-          content: 'Sorry, I encountered an error while generating the logo. Please try again.',
-          createdAt: new Date(),
-        },
-      ])
-    } finally {
-      setIsGeneratingLogo(false)
-    }
-  }
-
   const handleMockupGeneration = async () => {
-    if (!logoData?.logoUrl || !selectedBrandName) return
+    if (!selectedBrandName) return
 
     try {
       setIsGeneratingMockup(true)
@@ -397,7 +378,6 @@ export default function CreatePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          logoUrl: logoData.logoUrl,
           brandName: selectedBrandName,
           containerType,
           colors: {
@@ -444,22 +424,23 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="space-y-8 py-8">
+    <div className="container space-y-8 py-4 sm:py-8">
       <ProgressIndicator
         steps={steps}
         currentStep={currentStepIndex}
-        className="mb-8"
+        className="mb-4 sm:mb-8"
       />
-      <div className="mx-auto max-w-4xl space-y-8">
+      <div className="mx-auto max-w-4xl space-y-4 sm:space-y-8">
         {currentStep === "market-research" && (
           <>
             <Chat
               initialMessages={marketResearchMessages}
               onSubmit={handleMarketResearch}
               isStreaming={isStreaming}
+              suggestedPrompts={marketResearchPrompts}
             />
-            {hasResponse && !isStreaming && (
-              <div className="flex justify-end">
+            {hasResponse && !isStreaming && marketResearchMessages.length > 1 && (
+              <div className="flex justify-end px-4 sm:px-0">
                 <Button onClick={goToNextStep} className="gap-2">
                   Next Step: Consumer Persona
                   <ArrowRight className="h-4 w-4" />
@@ -475,9 +456,10 @@ export default function CreatePage() {
               initialMessages={personaMessages}
               onSubmit={handlePersona}
               isStreaming={isStreaming}
+              suggestedPrompts={consumerPersonaPrompts}
             />
-            {hasResponse && !isStreaming && (
-              <div className="flex justify-between">
+            {hasResponse && !isStreaming && personaMessages.length > 1 && (
+              <div className="flex flex-col gap-4 px-4 sm:flex-row sm:justify-between sm:px-0">
                 <Button
                   variant="outline"
                   onClick={goToPreviousStep}
@@ -500,90 +482,124 @@ export default function CreatePage() {
               initialMessages={brandingMessages}
               onSubmit={handleBranding}
               isStreaming={isStreaming}
+              suggestedPrompts={brandingPrompts}
             />
             {showBrandSelection && !isStreaming && (
-              <Card className="p-6">
-                <h3 className="mb-4 text-2xl font-bold">Select Your Brand Name</h3>
-                <p className="mb-6 text-sm text-muted-foreground">
-                  Choose from the generated brand names below. Each name has been carefully crafted to align with your brand values and resonate with your target audience.
-                </p>
-                <RadioGroup
-                  value={selectedBrandName}
-                  onValueChange={setSelectedBrandName}
-                  className="space-y-6"
-                >
-                  {brandNames.map((brand) => (
-                    <div key={brand.name} className="group relative flex items-start space-x-3 rounded-lg border p-4 hover:bg-accent/50 hover:shadow-sm">
-                      <RadioGroupItem value={brand.name} id={brand.name} className="mt-1" />
-                      <Label htmlFor={brand.name} className="flex-1 cursor-pointer space-y-2 font-normal">
-                        <div className="text-xl font-semibold group-hover:text-primary">{brand.name}</div>
-                        <div className="prose prose-sm text-muted-foreground">
-                          {brand.description.split('\n').map((paragraph, i) => (
-                            <p key={i} className="mt-1">{paragraph}</p>
-                          ))}
-                        </div>
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                {selectedBrandName && (
-                  <div className="mt-6 space-y-6">
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Product Mockup</h4>
-                      <Tabs defaultValue="can" value={containerType} onValueChange={(v) => setContainerType(v as ContainerType)}>
-                        <TabsList className="grid w-full grid-cols-3">
-                          <TabsTrigger value="can" className="space-x-2">
-                            <Package className="h-4 w-4" />
-                            <span>Can</span>
-                          </TabsTrigger>
-                          <TabsTrigger value="bottle" className="space-x-2">
-                            <Wine className="h-4 w-4" />
-                            <span>Bottle</span>
-                          </TabsTrigger>
-                          <TabsTrigger value="tetra" className="space-x-2">
-                            <Beer className="h-4 w-4" />
-                            <span>Tetra Pak</span>
-                          </TabsTrigger>
-                        </TabsList>
-                      </Tabs>
+              <Card className="mx-4 sm:mx-0">
+                <div className="p-4 sm:p-6">
+                  <h3 className="mb-2 text-xl font-bold sm:mb-4 sm:text-2xl">Select Your Brand Name</h3>
+                  <p className="mb-4 text-sm text-muted-foreground sm:mb-6">
+                    Choose from the generated brand names below. Each name has been carefully crafted to align with your brand values and resonate with your target audience.
+                  </p>
+                  <RadioGroup
+                    value={selectedBrandName}
+                    onValueChange={setSelectedBrandName}
+                    className="space-y-4 sm:space-y-6"
+                  >
+                    {brandNames.map((brand) => (
+                      <div key={brand.name} className="group relative flex items-start space-x-3 rounded-lg border p-3 hover:bg-accent/50 hover:shadow-sm sm:p-4">
+                        <RadioGroupItem value={brand.name} id={brand.name} className="mt-1" />
+                        <Label htmlFor={brand.name} className="flex-1 cursor-pointer space-y-2 font-normal">
+                          <div className="text-lg font-semibold group-hover:text-primary sm:text-xl">{brand.name}</div>
+                          <div className="prose prose-sm text-muted-foreground">
+                            <ReactMarkdown
+                              components={{
+                                h4: ({ children }) => <h4 className="text-base font-semibold mt-4">{children}</h4>,
+                                p: ({ children }) => <p className="mt-1 text-sm sm:text-base">{children}</p>,
+                                ul: ({ children }) => <ul className="list-disc list-inside mt-2">{children}</ul>,
+                                li: ({ children }) => <li className="mt-1 text-sm sm:text-base">{children}</li>,
+                              }}
+                            >
+                              {brand.description}
+                            </ReactMarkdown>
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                  {selectedBrandName && (
+                    <div className="mt-6 space-y-4 sm:space-y-6">
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Product Mockup</h4>
+                        <Tabs defaultValue="can" value={containerType} onValueChange={(v) => {
+                          setContainerType(v as ContainerType);
+                          setMockupData(null); // Reset mockup when container type changes
+                        }}>
+                          <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="can" className="space-x-1 sm:space-x-2">
+                              <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="text-xs sm:text-sm">Can</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="bottle" className="space-x-1 sm:space-x-2">
+                              <Wine className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="text-xs sm:text-sm">Bottle</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="tetra" className="space-x-1 sm:space-x-2">
+                              <Beer className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="text-xs sm:text-sm">Tetra Pak</span>
+                            </TabsTrigger>
+                          </TabsList>
+                        </Tabs>
 
-                      {mockupData ? (
-                        <div className="relative aspect-square overflow-hidden rounded-lg border bg-background">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={mockupData.mockupUrl}
-                            alt={`${selectedBrandName} ${containerType} mockup`}
-                            className="size-full object-contain p-4"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex aspect-square items-center justify-center rounded-lg border bg-background/50">
-                          <Button
-                            onClick={handleMockupGeneration}
-                            disabled={isGeneratingMockup}
-                            variant="outline"
-                            className="gap-2"
-                          >
-                            {isGeneratingMockup ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Generating Mockup...
-                              </>
-                            ) : (
-                              <>
-                                Generate Product Mockup
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      )}
+                        {mockupData ? (
+                          <div className="space-y-4">
+                            <div className="relative aspect-square overflow-hidden rounded-lg border bg-background">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={mockupData.mockupUrl}
+                                alt={`${selectedBrandName} ${containerType} mockup`}
+                                className="size-full object-contain p-4"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                              <Button
+                                onClick={handleMockupGeneration}
+                                disabled={isGeneratingMockup}
+                                variant="outline"
+                                className="gap-2"
+                              >
+                                {isGeneratingMockup ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-sm sm:text-base">Generating New Mockup...</span>
+                                  </>
+                                ) : (
+                                  <span className="text-sm sm:text-base">Generate New Mockup</span>
+                                )}
+                              </Button>
+                              <Button onClick={goToNextStep} className="gap-2">
+                                <span className="text-sm sm:text-base">Next Step: Formulation</span>
+                                <ArrowRight className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex aspect-square items-center justify-center rounded-lg border bg-background/50">
+                            <Button
+                              onClick={handleMockupGeneration}
+                              disabled={isGeneratingMockup}
+                              variant="outline"
+                              className="gap-2"
+                            >
+                              {isGeneratingMockup ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span className="text-sm sm:text-base">Generating Mockup...</span>
+                                </>
+                              ) : (
+                                <span className="text-sm sm:text-base">Generate Product Mockup</span>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </Card>
             )}
             {hasResponse && !isStreaming && !showBrandSelection && (
-              <div className="flex justify-between">
+              <div className="flex justify-between px-4 sm:px-0">
                 <Button
                   variant="outline"
                   onClick={goToPreviousStep}
@@ -591,66 +607,6 @@ export default function CreatePage() {
                 >
                   Back to Consumer Persona
                 </Button>
-                <Button onClick={goToNextStep} className="gap-2">
-                  Skip Logo Generation
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-
-            {showBrandSelection && !isStreaming && !selectedBrandName && (
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={goToPreviousStep}
-                  className="gap-2"
-                >
-                  Back to Consumer Persona
-                </Button>
-                <Button onClick={goToNextStep} className="gap-2">
-                  Skip Logo Generation
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-
-            {showBrandSelection && selectedBrandName && !logoData && (
-              <div className="flex justify-between mt-6">
-                <Button
-                  variant="outline"
-                  onClick={goToPreviousStep}
-                  className="gap-2"
-                >
-                  Back to Consumer Persona
-                </Button>
-                <div className="space-x-4">
-                  <Button
-                    onClick={handleLogoGeneration}
-                    disabled={isGeneratingLogo}
-                    variant="default"
-                    className="gap-2"
-                  >
-                    {isGeneratingLogo ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Generating Logo...
-                      </>
-                    ) : (
-                      <>
-                        Generate Logo
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={goToNextStep}
-                    className="gap-2"
-                  >
-                    Skip Logo Generation
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             )}
           </>

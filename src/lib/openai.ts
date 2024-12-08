@@ -212,4 +212,68 @@ export async function generateLogo(prompt: string) {
   });
 
   return response.data[0].url;
+}
+
+interface MockupParams {
+  brandName: string;
+  containerType: 'can' | 'bottle' | 'tetra';
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  category: string;
+  theme: string;
+}
+
+export async function generateMockup({
+  brandName,
+  containerType,
+  colors,
+  category,
+  theme,
+}: MockupParams) {
+  if (TEST_MODE) {
+    return {
+      prompt: TEST_RESPONSES.mockupPrompt,
+      mockupUrl: "https://placehold.co/600x600/png",
+    };
+  }
+
+  // Create a detailed prompt for the mockup
+  const prompt = `Create a photorealistic product mockup of a ${category} beverage ${containerType}.
+
+Key Elements:
+- Brand: "${brandName}"
+- Container: Professional ${containerType} design with modern appeal
+- Colors: Primary (${colors.primary}), Secondary (${colors.secondary}), Accent (${colors.accent})
+- Style: Clean, premium, commercial product photography
+- Theme: ${theme}
+
+Requirements:
+- Show the ${containerType} at a 3/4 angle with professional studio lighting
+- Apply the brand colors in a sleek, modern design
+- Include subtle reflections and shadows for realism
+- Place the product on a clean, minimal surface
+- Add depth of field effect for professional look
+- Ensure the design looks premium and retail-ready
+- Make it look like a real product you'd find in a store
+
+Note: This should look like a professional product photo of a real beverage ${containerType} that could be on store shelves today.`;
+
+  const response = await openai.images.generate({
+    model: "dall-e-3",
+    prompt,
+    n: 1,
+    size: "1024x1024",
+    quality: "hd",
+    style: "natural",
+  });
+
+  const mockupUrl = response.data[0]?.url;
+  if (!mockupUrl) {
+    throw new Error("Failed to generate mockup image");
+  }
+
+  return { prompt, mockupUrl };
 } 
