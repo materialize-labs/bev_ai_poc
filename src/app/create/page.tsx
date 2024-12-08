@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSteps } from "@/hooks/use-steps"
 import { ProgressIndicator } from "@/components/progress-indicator"
 import { Chat } from "@/components/chat/chat"
@@ -14,6 +14,13 @@ import { Label } from "@/components/ui/label"
 import type { Message } from "@/components/chat/message"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ReactMarkdown from "react-markdown"
+import {
+  getMarketResearchSuggestions,
+  getConsumerPersonaSuggestions,
+  getBrandingSuggestions,
+  getFormulationSuggestions,
+  getBusinessPlanSuggestions,
+} from '@/lib/suggestions'
 
 const steps = [
   {
@@ -35,6 +42,11 @@ const steps = [
     id: "formulation",
     name: "Formulation",
     description: "Develop your product recipe",
+  },
+  {
+    id: "business-plan",
+    name: "Business Plan",
+    description: "Create your comprehensive business strategy",
   },
 ]
 
@@ -66,6 +78,11 @@ const stepMessages = {
       "Let's develop your product recipe! Tell me about the key ingredients and flavors you'd like to include. Consider your target consumer preferences and any nutritional goals."
     ),
   ],
+  "business-plan": [
+    createInitialMessage(
+      "I'll create a comprehensive business plan based on all our previous discussions. Please review each section and let me know if you'd like to modify any part."
+    ),
+  ],
 }
 
 interface BrandName {
@@ -74,30 +91,6 @@ interface BrandName {
 }
 
 type ContainerType = 'can' | 'bottle' | 'tetra';
-
-const marketResearchPrompts = [
-  "I want to create a natural energy drink with clean ingredients.",
-  "I'm thinking of launching a premium sparkling water brand.",
-  "I want to develop a plant-based protein beverage.",
-]
-
-const consumerPersonaPrompts = [
-  "Health-conscious millennials who are looking for natural energy alternatives.",
-  "Active professionals aged 25-40 who value premium, sustainable products.",
-  "Fitness enthusiasts who need clean, functional beverages for their workouts.",
-]
-
-const brandingPrompts = [
-  "Modern, minimalist, and premium with a focus on wellness and sustainability.",
-  "Bold, energetic, and vibrant with an emphasis on natural ingredients.",
-  "Clean, pure, and refreshing with a connection to nature and mindfulness.",
-]
-
-const formulationPrompts = [
-  "A refreshing blend with natural caffeine from green tea, B-vitamins, and adaptogens.",
-  "A sparkling water infused with organic fruit essences and electrolytes.",
-  "A plant protein shake with pea protein, MCT oil, and natural sweeteners.",
-]
 
 export default function CreatePage() {
   const {
@@ -128,6 +121,40 @@ export default function CreatePage() {
   const [containerType, setContainerType] = useState<ContainerType>('can')
   const [isGeneratingMockup, setIsGeneratingMockup] = useState(false)
   const [mockupData, setMockupData] = useState<{ prompt: string; mockupUrl: string } | null>(null)
+
+  const [businessPlanMessages, setBusinessPlanMessages] = useState<Message[]>(() => [...stepMessages["business-plan"]])
+
+  // Dynamic suggestions state
+  const [marketResearchPrompts, setMarketResearchPrompts] = useState<string[]>(() => getMarketResearchSuggestions())
+  const [consumerPersonaPrompts, setConsumerPersonaPrompts] = useState<string[]>(() => getConsumerPersonaSuggestions())
+  const [brandingPrompts, setBrandingPrompts] = useState<string[]>(() => getBrandingSuggestions())
+  const [formulationPrompts, setFormulationPrompts] = useState<string[]>(() => getFormulationSuggestions())
+  const [businessPlanPrompts, setBusinessPlanPrompts] = useState<string[]>(() => getBusinessPlanSuggestions())
+
+  // Refresh suggestions when moving between steps
+  useEffect(() => {
+    switch (currentStep) {
+      case "market-research":
+        setMarketResearchPrompts(getMarketResearchSuggestions())
+        break
+      case "consumer-persona":
+        setConsumerPersonaPrompts(getConsumerPersonaSuggestions())
+        break
+      case "branding":
+        setBrandingPrompts(getBrandingSuggestions())
+        break
+      case "formulation":
+        setFormulationPrompts(getFormulationSuggestions())
+        break
+      case "business-plan":
+        setBusinessPlanPrompts(getBusinessPlanSuggestions())
+        // Trigger initial business plan generation
+        if (businessPlanMessages.length === 1) {
+          handleBusinessPlan("")
+        }
+        break
+    }
+  }, [currentStep])
 
   const handleMarketResearch = async (message: string) => {
     try {
@@ -519,6 +546,147 @@ export default function CreatePage() {
     }
   }
 
+  const handleBusinessPlan = async (message: string) => {
+    try {
+      setIsStreaming(true)
+      setError(null)
+      
+      // If this is the first message, generate the complete plan
+      if (businessPlanMessages.length === 1) {
+        const assistantMessageId = nanoid()
+        setBusinessPlanMessages((prev) => [
+          ...prev,
+          {
+            id: assistantMessageId,
+            role: "assistant",
+            content: "",
+            createdAt: new Date(),
+          },
+        ])
+
+        const response = await fetch("/api/business-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [],
+            previousSteps: {
+              marketResearch: marketResearchMessages[marketResearchMessages.length - 1]?.content,
+              consumerPersona: personaMessages[personaMessages.length - 1]?.content,
+              brandName: brandNames.find(b => b.name === selectedBrandName),
+              formulation: formulationMessages[formulationMessages.length - 1]?.content,
+            },
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to get business plan response')
+        }
+
+        const reader = response.body?.getReader()
+        if (!reader) {
+          throw new Error('No response body')
+        }
+
+        const decoder = new TextDecoder()
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          setBusinessPlanMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId
+                ? { ...msg, content: msg.content + chunk }
+                : msg
+            )
+          )
+        }
+
+        setHasResponse(true)
+        return
+      }
+
+      // For subsequent messages, handle refinements
+      const userMessage: Message = {
+        id: nanoid(),
+        role: "user",
+        content: message,
+        createdAt: new Date(),
+      }
+      
+      const updatedMessages = [...businessPlanMessages, userMessage]
+      setBusinessPlanMessages(updatedMessages)
+
+      const assistantMessageId = nanoid()
+      setBusinessPlanMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMessageId,
+          role: "assistant",
+          content: "",
+          createdAt: new Date(),
+        },
+      ])
+
+      const response = await fetch("/api/business-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          previousSteps: {
+            marketResearch: marketResearchMessages[marketResearchMessages.length - 1]?.content,
+            consumerPersona: personaMessages[personaMessages.length - 1]?.content,
+            brandName: brandNames.find(b => b.name === selectedBrandName),
+            formulation: formulationMessages[formulationMessages.length - 1]?.content,
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get business plan response')
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('No response body')
+      }
+
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        setBusinessPlanMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          )
+        )
+      }
+
+      setHasResponse(true)
+    } catch (error) {
+      console.error("Business Plan Error:", error)
+      setError(error instanceof Error ? error.message : "An error occurred while processing your request.")
+      setBusinessPlanMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          role: "assistant",
+          content: "Sorry, I encountered an error while creating the business plan. Please try again.",
+          createdAt: new Date(),
+        },
+      ])
+    } finally {
+      setIsStreaming(false)
+    }
+  }
+
   return (
     <div className="container space-y-8 py-4 sm:py-8">
       <ProgressIndicator
@@ -773,6 +941,52 @@ export default function CreatePage() {
                       className="gap-2"
                     >
                       Back to Branding
+                    </Button>
+                    {isLastStep ? (
+                      <Button onClick={goToNextStep} className="gap-2">
+                        Finish
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button onClick={goToNextStep} className="gap-2">
+                        Next Step
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {currentStep === "business-plan" && (
+          <>
+            <Chat
+              initialMessages={businessPlanMessages}
+              onSubmit={handleBusinessPlan}
+              isStreaming={isStreaming}
+              error={error}
+              suggestedPrompts={businessPlanPrompts}
+            />
+            <div className="mt-4 space-y-4 px-4 sm:px-0">
+              {!hasResponse && !isStreaming && businessPlanMessages.length === 1 && (
+                <p className="text-sm text-muted-foreground">
+                  📊 Let's create your business plan. You can start with the executive summary or focus on specific sections.
+                </p>
+              )}
+              {hasResponse && !isStreaming && businessPlanMessages.length > 1 && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Business plan in progress! You can continue refining or go back to formulation.
+                  </p>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={goToPreviousStep}
+                      className="gap-2"
+                    >
+                      Back to Formulation
                     </Button>
                     {isLastStep ? (
                       <Button onClick={goToNextStep} className="gap-2">
