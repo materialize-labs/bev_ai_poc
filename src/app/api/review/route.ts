@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       formulation: previousSteps.formulation,
       businessPlan: previousSteps.businessPlan,
       mockupData: previousSteps.mockupData,
+      brandIdentity: previousSteps.brandIdentity,
     })
 
     const stream = OpenAIStream(completion)

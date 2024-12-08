@@ -98,6 +98,11 @@ const stepMessages = {
 interface BrandName {
   name: string
   description: string
+  colors?: {
+    primary: string
+    secondary: string
+    accent: string
+  }
 }
 
 type ContainerType = 'can' | 'bottle' | 'tetra';
@@ -371,9 +376,22 @@ export default function CreatePage() {
               ? descriptionMatch[1].trim()
               : 'A unique and memorable brand name for your beverage.';
 
+            // Extract colors from Visual Identity section
+            const visualIdentityMatch = suggestion.match(/#### Visual Identity[\s\S]*?Colors: ([^\n]+)/);
+            const colorsText = visualIdentityMatch?.[1] || '';
+            
+            // Parse colors - expecting format like "Sage Green, Pearl White, Golden"
+            const colorArray = colorsText.split(',').map(c => c.trim());
+            const colors = colorArray.length >= 3 ? {
+              primary: colorArray[0],
+              secondary: colorArray[1],
+              accent: colorArray[2]
+            } : undefined;
+
             return {
               name,
-              description: suggestion.trim() // Store the full markdown content
+              description: suggestion.trim(), // Store the full markdown content
+              colors
             };
           } catch (parseError) {
             console.error('Error parsing brand suggestion:', parseError);
