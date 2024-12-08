@@ -354,3 +354,191 @@ async function* generateTestFormulation(messages: { role: string; content: strin
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 } 
+
+interface BusinessPlanInput {
+  messages: { role: string; content: string }[]
+  marketResearch: string
+  consumerPersona: string
+  brandName: { name: string; description: string }
+  formulation: string
+}
+
+export async function generateBusinessPlan({
+  messages,
+  marketResearch,
+  consumerPersona,
+  brandName,
+  formulation,
+}: BusinessPlanInput) {
+  if (TEST_MODE) {
+    return generateTestBusinessPlan(messages)
+  }
+
+  // If no messages, generate initial complete plan
+  if (messages.length === 0) {
+    const systemMessage = {
+      role: "system" as const,
+      content: `You are an expert business strategist. Create a comprehensive business plan using this context:
+
+Market Research: ${marketResearch}
+Target Consumer: ${consumerPersona}
+Brand Name: ${brandName?.name}
+Brand Story: ${brandName?.description}
+Product Formulation: ${formulation}
+
+Generate a complete business plan with these sections:
+1. Executive Summary
+   - Overview of the business concept
+   - Market opportunity
+   - Unique value proposition
+   - Key objectives
+
+2. Market Analysis
+   - Industry overview and trends
+   - Target market segmentation
+   - Competitive analysis
+   - Market size and growth potential
+
+3. Marketing Strategy
+   - Brand positioning
+   - Distribution channels
+   - Pricing strategy
+   - Marketing channels and tactics
+   - Customer acquisition strategy
+
+4. Operations Plan
+   - Production process
+   - Supply chain management
+   - Quality control
+   - Facility requirements
+   - Team structure
+
+5. Financial Projections
+   - Startup costs
+   - Revenue projections
+   - Operating expenses
+   - Break-even analysis
+   - 3-year financial forecast
+
+6. Risk Analysis
+   - Market risks
+   - Operational risks
+   - Financial risks
+   - Mitigation strategies
+
+7. Implementation Timeline
+   - Key milestones
+   - Launch strategy
+   - Growth phases
+
+Format the response in clear markdown sections. Be specific and actionable, using real numbers and concrete strategies based on the provided context.`
+    }
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [systemMessage],
+      temperature: 0.7,
+      stream: true,
+    })
+
+    return response
+  }
+
+  // For refinement messages, provide focused updates
+  const systemMessage = {
+    role: "system" as const,
+    content: `You are an expert business strategist helping refine a business plan. Use this context:
+
+Market Research: ${marketResearch}
+Target Consumer: ${consumerPersona}
+Brand Name: ${brandName?.name}
+Brand Story: ${brandName?.description}
+Product Formulation: ${formulation}
+
+The user wants to modify specific aspects of the business plan. Provide detailed, actionable updates while maintaining consistency with the overall strategy. Focus on the specific section being discussed while considering its impact on other areas of the plan.
+
+Format your response in clear markdown sections and be specific with numbers, timelines, and concrete strategies.`
+  }
+
+  const typedMessages = messages.map(msg => ({
+    role: msg.role as "user" | "assistant" | "system",
+    content: msg.content
+  }))
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [systemMessage, ...typedMessages],
+    temperature: 0.7,
+    stream: true,
+  })
+
+  return response
+}
+
+// Add test mode handler
+async function* generateTestBusinessPlan(messages: { role: string; content: string }[]) {
+  // If no messages, generate initial complete plan
+  if (messages.length === 0) {
+    const chunks = [
+      "# Complete Business Plan\n\n",
+      "## 1. Executive Summary\n",
+      "- Premium wellness beverage brand targeting health-conscious consumers\n",
+      "- Unique value proposition: Natural energy + functional benefits\n",
+      "- Market opportunity: $50B wellness beverage sector\n",
+      "- Key objectives: 5% market share in 3 years\n\n",
+      "## 2. Market Analysis\n",
+      "- Industry growth: 8% YoY\n",
+      "- Target segment: Urban professionals, 25-40\n",
+      "- Key competitors: 3 major players\n",
+      "- Market size: $50B with 15% premium segment\n\n",
+      "## 3. Marketing Strategy\n",
+      "- Premium positioning: $4.99 per unit\n",
+      "- D2C focus + premium retail\n",
+      "- Digital marketing: 60% of budget\n",
+      "- Influencer partnerships\n\n",
+      "## 4. Operations Plan\n",
+      "- Co-packing manufacturing\n",
+      "- Quality control: ISO 9001\n",
+      "- 3PL distribution\n",
+      "- Initial team of 12\n\n",
+      "## 5. Financial Projections\n",
+      "- Startup cost: $500K\n",
+      "- Y1 Revenue: $1.2M\n",
+      "- Break-even: Month 18\n",
+      "- Y3 Revenue: $5M\n\n",
+      "## 6. Risk Analysis\n",
+      "- Supply chain disruption plan\n",
+      "- Market competition strategy\n",
+      "- Cash flow management\n",
+      "- Regulatory compliance\n\n",
+      "## 7. Implementation Timeline\n",
+      "- Month 1-3: Production setup\n",
+      "- Month 4: Soft launch\n",
+      "- Month 6: Full market entry\n",
+      "- Month 12: Retail expansion\n\n",
+      "Review the plan and let me know which sections you'd like to modify or expand."
+    ]
+
+    for (const chunk of chunks) {
+      yield chunk
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+    return
+  }
+
+  // For refinement messages
+  const chunks = [
+    "I'll help you refine that section of the business plan.\n\n",
+    "Here's a detailed update with specific numbers and strategies:\n\n",
+    "- Adjusted timeline to be more conservative\n",
+    "- Updated financial projections\n",
+    "- Added specific action items\n",
+    "- Considered market feedback\n\n",
+    "Would you like to review any other sections?"
+  ]
+
+  for (const chunk of chunks) {
+    yield chunk
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+} 
