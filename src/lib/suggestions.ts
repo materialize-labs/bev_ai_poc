@@ -51,19 +51,19 @@ const brandingPool = [
 
 // Formulation suggestions pool
 const formulationPool = [
-  "A refreshing blend with natural caffeine from green tea, B-vitamins, and adaptogens.",
-  "A sparkling water infused with organic fruit essences and electrolytes.",
-  "A plant protein shake with pea protein, MCT oil, and natural sweeteners.",
-  "An adaptogenic elixir with mushroom extracts and herbs.",
-  "A probiotic drink with natural fruit flavors.",
-  "A recovery drink with BCAAs and electrolytes.",
-  "A zero-sugar energy drink with natural stimulants.",
-  "A functional tea with nootropic ingredients.",
-  "A collagen-infused beauty beverage.",
-  "A prebiotic gut health drink.",
-  "A vitamin-enriched hydration beverage.",
-  "An immune-boosting wellness shot.",
-  "A natural focus and clarity drink.",
+  "What are the key active ingredients you'd like to include in your formulation?",
+  "How would you like to balance taste with functional benefits in your beverage?",
+  "What natural sweeteners or flavoring agents would you prefer to use?",
+  "Are there any specific dietary restrictions we should consider (vegan, gluten-free, etc.)?",
+  "What's your target nutritional profile (calories, sugar, protein content)?",
+  "Would you like to incorporate any specific vitamins or minerals?",
+  "What's your preferred base liquid (water, tea, juice, plant milk)?",
+  "Are there any specific preservatives or shelf-life requirements?",
+  "Would you like to add any texture enhancers or stabilizers?",
+  "What's your target caffeine content, if any?",
+  "Are there any specific certifications you're aiming for (organic, non-GMO)?",
+  "What's your desired shelf life for the product?",
+  "Would you like to include any specific functional ingredients for your target benefits?"
 ]
 
 // Business Plan suggestions pool
@@ -84,7 +84,17 @@ const businessPlanPool = [
 ]
 
 function getRandomSuggestions(pool: string[], count: number = 3): string[] {
-  const shuffled = [...pool].sort(() => Math.random() - 0.5)
+  // Use the current day of the month as a seed
+  const date = new Date()
+  const dayOfMonth = date.getDate()
+  
+  // Create a deterministic shuffle based on the day
+  const shuffled = [...pool].sort((a, b) => {
+    const hashA = a.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * dayOfMonth
+    const hashB = b.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * dayOfMonth
+    return hashA - hashB
+  })
+  
   return shuffled.slice(0, count)
 }
 
