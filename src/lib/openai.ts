@@ -1,12 +1,16 @@
 import OpenAI from 'openai';
 import { TEST_MODE, TEST_RESPONSES, streamTestContent, simulateDelay } from './test-data';
 
-if (!process.env.OPENAI_API_KEY && !TEST_MODE) {
+// Check for API key in a way that works with Edge Runtime
+const apiKey = process.env.OPENAI_API_KEY;
+const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
+
+if (!apiKey && !isTestMode) {
   throw new Error('Missing OPENAI_API_KEY environment variable');
 }
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: apiKey || 'dummy-key-for-test-mode',
 });
 
 export async function generateMarketResearch(category: string) {
