@@ -96,13 +96,13 @@ const stepMessages = {
 }
 
 interface BrandName {
-  name: string
-  description: string
+  name: string;
+  description: string;
   colors?: {
-    primary: string
-    secondary: string
-    accent: string
-  }
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
 }
 
 type ContainerType = 'can' | 'bottle' | 'tetra';
@@ -360,27 +360,23 @@ export default function CreatePage() {
 
         const parsedBrandNames = suggestions.map(suggestion => {
           try {
-            // Extract brand name (looking for the name between ** **)
             const nameMatch = suggestion.match(/\*\*([^*]+)\*\*/);
             if (!nameMatch?.[1]) {
               console.warn('Could not extract brand name from suggestion');
               return null;
             }
 
-            // Get the name and clean up any markdown formatting
             const name = nameMatch[1].trim();
+            if (!name) return null;
 
-            // Extract everything after Brand Story for the description
             const descriptionMatch = suggestion.match(/#### Brand Story\n([\s\S]+?)(?=####|$)/);
             const description = descriptionMatch 
               ? descriptionMatch[1].trim()
               : 'A unique and memorable brand name for your beverage.';
 
-            // Extract colors from Visual Identity section
             const visualIdentityMatch = suggestion.match(/#### Visual Identity[\s\S]*?Colors: ([^\n]+)/);
             const colorsText = visualIdentityMatch?.[1] || '';
             
-            // Parse colors - expecting format like "Sage Green, Pearl White, Golden"
             const colorArray = colorsText.split(',').map(c => c.trim());
             const colors = colorArray.length >= 3 ? {
               primary: colorArray[0],
@@ -388,24 +384,30 @@ export default function CreatePage() {
               accent: colorArray[2]
             } : undefined;
 
-            return {
+            const brand: BrandName = {
               name,
-              description: suggestion.trim(), // Store the full markdown content
+              description: suggestion.trim(),
               colors
             };
+
+            return brand;
           } catch (parseError) {
             console.error('Error parsing brand suggestion:', parseError);
             return null;
           }
-        }).filter((brand): brand is BrandName => brand !== null && brand.name !== '');
+        });
 
-        if (parsedBrandNames.length === 0) {
+        const validBrandNames = parsedBrandNames
+          .filter((brand): brand is NonNullable<typeof brand> => brand !== null)
+          .filter((brand): brand is BrandName => brand.name !== '');
+
+        if (validBrandNames.length === 0) {
           throw new Error('No valid brand names could be parsed from the response');
         }
 
-        setBrandNames(parsedBrandNames)
-        setHasResponse(true)
-        setShowBrandSelection(true)
+        setBrandNames(validBrandNames);
+        setHasResponse(true);
+        setShowBrandSelection(true);
       } catch (streamError) {
         console.error('Streaming or parsing error:', streamError);
         setBrandingMessages((prev) => [
@@ -1234,10 +1236,18 @@ export default function CreatePage() {
               )}
               {hasResponse && !isStreaming && reviewMessages.length > 1 && (
                 <div className="flex flex-col gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    ✅ Review in progress! You can continue refining or go back to business plan.
-                  </p>
-                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                  <div className="rounded-lg border bg-muted/50 p-4">
+                    <h3 className="font-semibold">Next Steps</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      You've completed all steps in the brand development process. You can:
+                    </p>
+                    <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                      <li>• Review and refine any section by clicking the "Back" button</li>
+                      <li>• Ask questions about any part of your brand development</li>
+                      <li>• Export your brand development package (coming soon)</li>
+                    </ul>
+                  </div>
+                  <div className="flex justify-start">
                     <Button
                       variant="outline"
                       onClick={goToPreviousStep}
@@ -1245,17 +1255,6 @@ export default function CreatePage() {
                     >
                       Back to Business Plan
                     </Button>
-                    {isLastStep ? (
-                      <Button onClick={goToNextStep} className="gap-2">
-                        Finish
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button onClick={goToNextStep} className="gap-2">
-                        Next Step
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
                 </div>
               )}

@@ -544,18 +544,30 @@ async function* generateTestBusinessPlan(messages: { role: string; content: stri
 } 
 
 interface ReviewInput {
-  messages: { role: string; content: string }[]
-  marketResearch: string
-  consumerPersona: string
-  brandName: { name: string; description: string; colors?: { primary: string; secondary: string; accent: string } }
-  formulation: string
-  businessPlan: string
-  mockupData: { prompt: string; mockupUrl: string } | null
+  messages: { role: string; content: string }[];
+  marketResearch: string;
+  consumerPersona: string;
+  brandName: {
+    name: string;
+    description: string;
+    colors?: {
+      primary: string;
+      secondary: string;
+      accent: string;
+    };
+  } | null;
+  formulation: string;
+  businessPlan: string;
+  mockupData: { prompt: string; mockupUrl: string } | null;
   brandIdentity: {
-    containerType: string
-    colors?: { primary: string; secondary: string; accent: string }
-    theme: string
-  }
+    containerType: string;
+    colors?: {
+      primary: string;
+      secondary: string;
+      accent: string;
+    };
+    theme: string;
+  };
 }
 
 export async function generateReview({
@@ -569,7 +581,7 @@ export async function generateReview({
   brandIdentity,
 }: ReviewInput) {
   if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
-    return generateTestReview(messages)
+    return generateTestReview(messages);
   }
 
   const systemPrompt = `You are a beverage brand development assistant. Create a comprehensive review of the entire brand development process, including:
@@ -586,7 +598,7 @@ export async function generateReview({
 4. Product Formulation Details
 5. Business Strategy Overview
 
-Present the information in a clear, organized format using markdown. Include specific details from each step while maintaining a cohesive narrative. When discussing the brand identity, reference the visual elements including colors and container design.`
+Present the information in a clear, organized format using markdown. Include specific details from each step while maintaining a cohesive narrative. When discussing the brand identity, reference the visual elements including colors and container design.`;
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4-turbo-preview",
@@ -618,9 +630,9 @@ ${businessPlan}` },
       ...messages,
     ],
     stream: true,
-  })
+  });
 
-  return completion
+  return completion;
 }
 
 // Add test mode handler
