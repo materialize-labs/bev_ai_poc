@@ -1,7 +1,11 @@
-import { ReactNode } from "react"
+"use client"
+
+import { ReactNode, useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
+import { LogoutButton } from "@/components/logout-button"
+import { usePathname } from 'next/navigation'
 
 interface ShellProps {
   children: ReactNode
@@ -10,6 +14,53 @@ interface ShellProps {
 
 export function Shell({ children, className }: ShellProps) {
   const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true'
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const pathname = usePathname()
+
+  // Function to check authentication status
+  function checkAuth() {
+    // Get all cookies as a string
+    const cookieString = document.cookie
+    console.log('Raw cookies:', cookieString)
+
+    // Parse cookies into an object
+    const cookies = cookieString.split(';').reduce((acc, current) => {
+      const [name, ...value] = current.trim().split('=')
+      acc[name] = value.join('=') // Handle values that might contain =
+      return acc
+    }, {} as Record<string, string>)
+
+    console.log('Parsed cookies:', cookies)
+    console.log('Auth token:', cookies['auth_token'])
+
+    const hasAuthToken = 'auth_token' in cookies && !!cookies['auth_token']
+    console.log('Has auth token:', hasAuthToken)
+
+    setIsAuthenticated(hasAuthToken)
+  }
+
+  useEffect(() => {
+    // Initial check
+    checkAuth()
+
+    // Set up interval for periodic checks
+    const interval = setInterval(checkAuth, 1000)
+
+    // Listen for storage events
+    const handleStorage = () => {
+      console.log('Storage event triggered')
+      checkAuth()
+    }
+    window.addEventListener('storage', handleStorage)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [pathname])
+
+  // Debug render
+  console.log('Shell render:', { isAuthenticated, pathname })
 
   return (
     <div className="min-h-screen bg-background font-sans antialiased">
@@ -28,6 +79,7 @@ export function Shell({ children, className }: ShellProps) {
                 </Badge>
               )}
               <ThemeToggle />
+              {isAuthenticated && <LogoutButton />}
             </div>
           </div>
         </header>

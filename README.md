@@ -9,6 +9,8 @@ An AI-powered beverage brand development platform built with Next.js, OpenAI, an
 - 🎨 Brand Identity Creation
 - 🧪 Product Formulation
 - 📊 Business Plan Generation
+- 📱 Secure Authentication
+- 🎨 Theme Support
 - 📱 Mobile Responsive Design
 
 ## Tech Stack
@@ -38,6 +40,8 @@ npm install
 ```bash
 OPENAI_API_KEY=your_api_key_here
 NEXT_PUBLIC_TEST_MODE=false
+AUTH_USERNAME=your_username_here
+AUTH_PASSWORD=your_secure_password_here
 ```
 
 4. Run the development server:
@@ -46,6 +50,15 @@ npm run dev
 ```
 
 5. Open [http://localhost:3000](http://localhost:3000)
+
+## Authentication
+
+The application uses secure cookie-based authentication with username/password protection. Protected routes include:
+
+- `/create/*` - Brand creation wizard
+- `/api/*` - API endpoints (except `/api/auth`)
+
+Authentication credentials should be configured through environment variables for security.
 
 ## Deployment
 
@@ -57,6 +70,8 @@ The application is configured for deployment on Vercel:
 4. Configure environment variables:
    - `OPENAI_API_KEY`
    - `NEXT_PUBLIC_TEST_MODE`
+   - `AUTH_USERNAME`
+   - `AUTH_PASSWORD`
 5. Deploy
 
 ## Development Mode
@@ -71,9 +86,12 @@ For development without OpenAI API usage:
 ```
 src/
 ├── app/                 # Next.js App Router
-├── components/          # React components
-├── lib/                # Utility functions
-└── styles/             # Global styles
+│   ├── api/            # API routes
+│   ├── auth/           # Authentication
+│   └── create/         # Protected routes
+├── components/         # React components
+├── lib/               # Utility functions
+└── styles/            # Global styles
 ```
 
 ## Contributing

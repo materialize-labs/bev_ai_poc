@@ -1,26 +1,38 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getAuthStatus } from '@/lib/auth'
 
 export function middleware(request: NextRequest) {
-  // Check if the user is authenticated
-  const isAuthenticated = getAuthStatus(request)
+  const isAuthPage = request.nextUrl.pathname === '/login'
+  const isProtectedRoute = 
+    request.nextUrl.pathname.startsWith('/create') || 
+    (request.nextUrl.pathname.startsWith('/api') && !request.nextUrl.pathname.startsWith('/api/auth'))
+  
+  // Get the auth token from cookies
+  const authToken = request.cookies.get('auth_token')?.value
+  const isAuthenticated = !!authToken
 
-  // If not authenticated and trying to access protected routes
-  if (!isAuthenticated) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('callbackUrl', request.nextUrl.pathname)
-    return NextResponse.redirect(url)
+  // Store the original URL to redirect after login
+  const originalUrl = request.nextUrl.pathname + request.nextUrl.search
+
+  if (isProtectedRoute && !isAuthenticated) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('from', originalUrl)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  if (isAuthPage && isAuthenticated) {
+    return NextResponse.redirect(new URL('/create', request.url))
   }
 
   return NextResponse.next()
 }
 
-// Configure which routes to protect
+// Update matcher to catch all variations of /create
 export const config = {
   matcher: [
+    '/create',
     '/create/:path*',
-    '/api/((?!auth).*)' // Protect all API routes except /api/auth
+    '/api/:path*',
+    '/login'
   ]
 } 
