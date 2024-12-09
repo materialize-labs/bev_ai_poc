@@ -35,7 +35,33 @@
    - Set up monitoring
    - Prepare deployment scripts
 
-## Phase 4: Vercel Deployment
+## Phase 4: Authentication Setup
+1. Environment Configuration:
+   - Add authentication environment variables:
+     * AUTH_USERNAME=materializelabs
+     * AUTH_PASSWORD=materializelabs1
+   - Update .env.example
+   - Document credentials securely
+
+2. Implementation:
+   - Create login page at /login
+   - Set up middleware for /create and /api routes
+   - Configure session handling
+   - Keep landing page public
+   - Add login form with shadcn/ui
+   - Style login page to match brand
+   - Add error handling
+   - Implement redirect logic
+
+3. Security Verification:
+   - Test public landing page access
+   - Verify protected routes (/create, /api/*)
+   - Check session handling
+   - Validate redirect behavior
+   - Test error messages
+   - Verify mobile login flow
+
+## Phase 5: Vercel Deployment
 1. Initial Setup:
    - Go to vercel.com and sign in
    - Click "Add New Project"
@@ -46,6 +72,8 @@
    - Add in Vercel dashboard:
      * OPENAI_API_KEY
      * NEXT_PUBLIC_TEST_MODE="false"
+     * AUTH_USERNAME=materializelabs
+     * AUTH_PASSWORD=materializelabs1
    - Verify environment variables
 
 3. Build Configuration:
@@ -59,8 +87,11 @@
    - Wait for build completion
    - Verify deployment success
 
-## Phase 5: Post-deployment
+## Phase 6: Post-deployment
 1. Verification:
+   - Test public landing page
+   - Test authentication flow
+   - Verify protected routes
    - Test all features in production
    - Verify API integrations
    - Check mobile responsiveness
