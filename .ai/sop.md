@@ -1,13 +1,46 @@
 # Standard Operating Procedure (SOP) for Bev Brand AI Development
 
-## Phase 4: Vercel Deployment
+## Phase 1: Development Environment
+1. Repository Setup:
+   - Clone from GitHub
+   - Install dependencies
+   - Configure environment variables
 
-### 4.1 Initial Setup
-1. Vercel Project Creation:
+2. Local Development:
+   - Run development server
+   - Test all features
+   - Verify API integrations
+
+## Phase 2: Testing
+1. Feature Testing:
+   - Verify all chat functionalities
+   - Test image generation
+   - Check streaming responses
+   - Validate mobile responsiveness
+
+2. Integration Testing:
+   - Test OpenAI integration
+   - Verify environment variables
+   - Check error handling
+
+## Phase 3: Pre-deployment
+1. Code Review:
+   - TypeScript validation
+   - ESLint checks
+   - Performance optimization
+   - Mobile responsiveness
+
+2. Environment Setup:
+   - Configure production variables
+   - Set up monitoring
+   - Prepare deployment scripts
+
+## Phase 4: Vercel Deployment
+1. Initial Setup:
    - Go to vercel.com and sign in
    - Click "Add New Project"
-   - Import your GitHub repository
-   - Select the repository
+   - Import GitHub repository
+   - Select repository
 
 2. Environment Variables:
    - Add in Vercel dashboard:
@@ -15,31 +48,26 @@
      * NEXT_PUBLIC_TEST_MODE="false"
    - Verify environment variables
 
-3. Domain Configuration:
-   - Use provided Vercel domain or
-   - Add custom domain if needed
-   - Vercel handles SSL automatically
-
-4. Build Configuration:
+3. Build Configuration:
    - Framework Preset: Next.js
    - Build Command: `next build`
    - Output Directory: `.next`
    - Install Command: `npm install`
 
-5. Deploy:
+4. Deploy:
    - Click "Deploy"
    - Wait for build completion
    - Verify deployment success
 
-### 4.2 Post-Deployment
-1. Verify Functionality:
-   - Test all chat features
-   - Check image generation
-   - Verify streaming responses
-   - Test mobile responsiveness
+## Phase 5: Post-deployment
+1. Verification:
+   - Test all features in production
+   - Verify API integrations
+   - Check mobile responsiveness
+   - Monitor error logs
 
-2. Domain Setup (if using custom domain):
-   - Add domain in Vercel
-   - Configure DNS records
-   - Wait for propagation
-   - Verify SSL certificate
+2. Documentation:
+   - Update README
+   - Document deployment process
+   - Record configuration details
+   - Note any special requirements

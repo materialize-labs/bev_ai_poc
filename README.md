@@ -1,193 +1,89 @@
 # Bev Brand AI
 
-An AI-powered beverage brand development platform that helps entrepreneurs create and refine their beverage brands through interactive conversations.
+An AI-powered beverage brand development platform built with Next.js, OpenAI, and Vercel.
 
 ## Features
 
-- 🤖 Interactive AI Chat Interface
-- 📊 Market Research Analysis
+- 🔍 Market Research Analysis
 - 👥 Consumer Persona Development
-- 🎨 Brand Design & Container Mockups
+- 🎨 Brand Identity Creation
 - 🧪 Product Formulation
-- 🔄 Automatic Business Plan Generation
-- 🔄 Comprehensive Review & Summary
-- 🔄 Test Mode for Offline Development
-- 📱 Responsive Design for All Devices
-- 💬 Real-time Streaming Responses
-- 🔄 Interactive Refinement System
+- 📊 Business Plan Generation
+- 📱 Mobile Responsive Design
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 with App Router
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS with Mobile-First Design
-- **UI Components:** shadcn/ui
-- **AI Integration:** OpenAI GPT-4
-- **Real-time:** Server-Sent Events (SSE)
-- **Deployment:** Vercel (planned)
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Shadcn UI
+- OpenAI GPT-4
+- DALL-E 3
+- Vercel Edge Runtime
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18.18.0 or later
-- npm or yarn
-- OpenAI API key (optional for test mode)
-
-### Installation
-
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/materialize-labs/bev_ai_poc.git
-   cd bev_ai_poc
-   ```
+```bash
+git clone https://github.com/your-username/bev-brand-ai.git
+cd bev-brand-ai
+```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. Create a `.env.local` file in the root directory:
-   ```env
-   OPENAI_API_KEY=your_api_key_here  # Required for live mode only
-   NEXT_PUBLIC_TEST_MODE=true        # Optional: Enable test mode
-   ```
+3. Create a `.env` file:
+```bash
+OPENAI_API_KEY=your_api_key_here
+NEXT_PUBLIC_TEST_MODE=false
+```
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+4. Run the development server:
+```bash
+npm run dev
+```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000)
 
-## Development Modes
+## Deployment
 
-### Live Mode
-- Requires OpenAI API key
-- Real-time AI responses
-- Full functionality with GPT-4
-- Streaming response handling
-- Proper error recovery
+The application is configured for deployment on Vercel:
 
-### Test Mode
-- No API key required
-- Instant responses for rapid development
-- Pre-defined test data for all features
-- Visual indicator in UI
-- Toggle with `NEXT_PUBLIC_TEST_MODE` environment variable
-- Sample business plans and responses
+1. Push your code to GitHub
+2. Create a new project on Vercel
+3. Import your GitHub repository
+4. Configure environment variables:
+   - `OPENAI_API_KEY`
+   - `NEXT_PUBLIC_TEST_MODE`
+5. Deploy
+
+## Development Mode
+
+For development without OpenAI API usage:
+
+1. Set `NEXT_PUBLIC_TEST_MODE=true` in `.env`
+2. Restart the development server
 
 ## Project Structure
 
 ```
 src/
-├── app/                 # Next.js App Router pages
-├── components/         # React components
-│   ├── chat/          # Chat interface components
-│   └── ui/            # Shared UI components
-├── lib/               # Utility functions
-└── styles/            # Global styles
+├── app/                 # Next.js App Router
+├── components/          # React components
+├── lib/                # Utility functions
+└── styles/             # Global styles
 ```
 
-## Features in Detail
-
-### Market Research
-- Real-time market trend analysis
-- Competitor research
-- Consumer preference insights
-- Growth opportunity identification
-- Mobile-optimized interface
-
-### Consumer Persona Development
-- Interactive demographic profiling
-- Behavior pattern analysis
-- Target market visualization
-- Preference mapping
-- Touch-friendly interface
-
-### Brand Development
-- AI-powered name generation with three unique options
-- Markdown-formatted brand stories
-- Direct container mockup generation
-- Multiple container type options
-- Responsive brand selection interface
-- Touch-optimized controls
-
-### Product Formulation
-- Recipe development
-- Nutritional analysis
-- Ingredient optimization
-- Compliance checking
-- Mobile-friendly interface
-
-### Business Plan Generation
-- Automatic plan generation on step entry
-- Comprehensive data synthesis
-- Executive summary
-- Market analysis
-- Marketing strategy
-- Financial projections
-- Risk assessment
-- Implementation timeline
-- Real numbers and strategies
-- Interactive refinement
-- Mobile-optimized display
-- Proper error handling
-- Test mode support
-
-### Review & Summary
-- Comprehensive development journey review
-- Market research summary
-- Consumer persona overview
-- Brand identity compilation:
-  * Brand name and story
-  * Theme and positioning
-  * Visual identity details:
-    - Container type selection
-    - Color palette display
-    - Product mockup preview:
-      * High-resolution display
-      * Container context
-      * Responsive sizing
-      * Proper styling
-    - Brand assets integration
-- Product formulation details
-- Business strategy overview
-- Interactive section navigation
-- Mobile-responsive layout
-- Markdown-formatted content
-- Asset preview integration
-- Read-only presentation
-- Test mode support
-- Complete data synthesis
-- Interactive refinements
-
-## Development
-
-### Commands
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run test` - Run tests (coming soon)
-
-### Contributing
+## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Next.js](https://nextjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [OpenAI](https://openai.com/)
-- [Vercel](https://vercel.com/)
+MIT License - see LICENSE file for details
