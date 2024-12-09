@@ -149,39 +149,17 @@ The proposed web application will serve as a PoC to demonstrate a chat-based, AI
 - Responsive UI under heavy interaction
 - Optimized performance on mobile devices
 - Proper error recovery mechanisms
-- Test mode for rapid development
 
-##### 3.2.2 Usability
-- Natural conversation flow
-- Clear visual feedback for all actions
-- Intuitive navigation between topics
-- Easy access to previous discussions and decisions
-- Touch-friendly interface for mobile users
-- Consistent experience across devices
-- Clear step progression indicators
-- Contextual guidance at each step
-- Visual feedback for completion status
-- Centered footer layout for better balance
-
-##### 3.2.3 Responsive Design
-- Mobile-first approach to design
-- Optimized layouts for different screen sizes
-- Touch-friendly interface elements
-- Responsive typography and spacing
-- Proper touch target sizes
-- Efficient use of screen real estate
-- Smooth transitions between breakpoints
-- Consistent functionality across devices
-
-##### 3.2.4 User Guidance
-- Clear instructions at each step
-- Visual indicators for progress
-- Contextual help messages
-- Status indicators for completion
-- Intuitive navigation cues
-- Clear next step indicators
-- Obvious action buttons
-- Consistent feedback patterns
+##### 3.2.2 Deployment Requirements
+- Vercel hosting platform
+- Environment variable configuration:
+  * OpenAI API key
+  * Test mode settings
+- Next.js build optimization
+- Automatic SSL/TLS
+- Edge network CDN
+- Serverless functions support
+- Automatic branch deployments
 
 ### 4. User Experience Design
 
