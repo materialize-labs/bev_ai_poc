@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSteps } from "@/hooks/use-steps"
 import { ProgressIndicator } from "@/components/progress-indicator"
 import { Chat } from "@/components/chat/chat"
@@ -108,6 +108,14 @@ interface BrandName {
 type ContainerType = 'can' | 'bottle' | 'tetra';
 
 export default function CreatePage() {
+  return (
+    <Suspense fallback={<div className="container py-8">Loading...</div>}>
+      <CreatePageContent />
+    </Suspense>
+  )
+}
+
+function CreatePageContent() {
   const {
     currentStep,
     currentStepIndex,
